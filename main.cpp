@@ -1,4 +1,5 @@
-#include "ui.h"
+#include "Ui.h"
+#include "BoidAgent.h"
 #include "imgui/imgui.h"
 
 #include <glad/glad.h>
@@ -32,11 +33,14 @@ int main()
 		return -1;
 	}
 
+	BoidAgent::Init(SCR_WIDTH, SCR_HEIGHT);
 	Ui::Init(window);
 
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		BoidAgent::Render();
 
 		Ui::Render();
 

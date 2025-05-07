@@ -12,8 +12,6 @@ namespace Ui
 
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(/*"#version 130"*/);
-
-		std::cout << "Initialized UI" << std::endl;
 	}
 
 	void Terminate()
@@ -21,8 +19,6 @@ namespace Ui
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
-
-		std::cout << "Terminated UI" << std::endl;
 	}
 
 	void Render()
