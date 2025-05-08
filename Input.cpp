@@ -9,8 +9,8 @@ namespace Input
 	
 	bool ExitActionPerformed = false;
 	double XDiff = 0, YDiff = 0;
-	
-	bool m_IsDragging = false;
+	bool IsDragging = false;
+
 	double m_XPrevious, m_YPrevious, m_XCurrent, m_YCurrent;
 
 	void Init(GLFWwindow* window)
@@ -21,7 +21,7 @@ namespace Input
 
 	void Process(GLFWwindow* window)
 	{
-		if (m_IsDragging)
+		if (IsDragging)
 		{
 			m_XPrevious = m_XCurrent;
 			m_YPrevious = m_YCurrent;
@@ -53,7 +53,7 @@ namespace Input
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_IsDragging = true;
+				IsDragging = true;
 
 				glfwGetCursorPos(window, &m_XCurrent, &m_YCurrent);
 				m_XPrevious = m_XCurrent;
@@ -61,7 +61,7 @@ namespace Input
 			}
 			if (action == GLFW_RELEASE)
 			{
-				m_IsDragging = false;
+				IsDragging = false;
 			}
 		}
 	}

@@ -109,18 +109,28 @@ public:
             Zoom = 45.0f;
     }
 
-    void RotateAroundCenter(float xoffset, float yoffset)
+    void RotateAroundCenter(float xoffset, float yoffset, float deltaTime)
     {
-        xoffset *= MouseSensitivity;
-        yoffset *= MouseSensitivity;
+        if (xoffset == 0 && yoffset == 0)
+        {
+            return;
+        }
 
-        glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::vec4 newPos = rotMat * glm::vec4(Position, 1.0f);
-        Position = glm::vec3(newPos.x, newPos.y, newPos.z);
+        ProcessMouseMovement(xoffset, yoffset);
 
-        //std::cout << Position.x << " " << Position.y << " " << Position.z << " " << std::endl;
-        Front = -Position;
-        updateCameraVectors_Front();
+        float distance = 10;
+        //Position.x = distance * sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+        //Position.y = distance * sin(glm::radians(Yaw)) * sin(glm::radians(Pitch));
+        //Position.z = distance * cos(glm::radians(Yaw));
+        Position.x = distance * -cos(glm::radians(Yaw));
+        Position.z = distance * sin(glm::radians(-Yaw));
+
+        std::cout << "Yaw: " << Yaw << std::endl;
+        std::cout << "Pitch: " << Pitch << std::endl;
+        std::cout << "Yaw (rad): " << glm::radians(Yaw) << std::endl;
+        std::cout << "Pitch (rad): " << glm::radians(Pitch) << std::endl;
+        std::cout << "Position: " << Position.x << ", " << Position.y << ", " << Position.z << std::endl;
+        std::cout << std::endl;
     }
 
 private:
@@ -136,24 +146,6 @@ private:
         // also re-calculate the Right and Up vector
         Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
         Up = glm::normalize(glm::cross(Right, Front));
-    }
-
-    void updateCameraVectors_Front()
-    {
-        // calculate the new Front vector
-        Front = glm::normalize(Front);
-        // also re-calculate the Right and Up vector
-        Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-        Up = glm::normalize(glm::cross(Right, Front));
-
-        //front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        //front.y = sin(glm::radians(Pitch));
-        double pitchRadians = asin(Front.y);
-        Pitch = glm::degrees(pitchRadians);
-        //front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        //front.z / cos(radians(Pitch)) = sin(radians(Yaw))
-        // asin(front.z / cos(radians(Pitch))) = radians(Yaw)
-        Yaw = glm::degrees(asin(Front.z / cos(pitchRadians)));
     }
 };
 #endif

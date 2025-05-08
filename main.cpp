@@ -42,9 +42,15 @@ int main()
 	Input::Init(window);
 
 	Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
-	
-while (!glfwWindowShouldClose(window))
+
+	float previousTime = 0;
+	float currentTime = 0;
+	while (!glfwWindowShouldClose(window))
 	{
+		previousTime = currentTime;
+		currentTime = glfwGetTime();
+		float deltaTime = currentTime - previousTime;
+
 		Input::Process(window);
 
 		if (Input::ExitActionPerformed)
@@ -52,7 +58,10 @@ while (!glfwWindowShouldClose(window))
 			glfwSetWindowShouldClose(window, true);
 		}
 
-		camera.RotateAroundCenter(Input::XDiff, Input::YDiff);
+		if (Input::IsDragging)
+		{
+			camera.RotateAroundCenter(Input::XDiff, Input::YDiff, deltaTime);
+		}
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
