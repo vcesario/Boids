@@ -1,4 +1,5 @@
 #include "Shader.h"
+#include "Camera.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -33,9 +34,13 @@ namespace BoidAgent
 
 	unsigned int vao;
 	std::unique_ptr<Shader> shader;
+	float m_ScrWidth, m_ScrHeight;
 
 	void Init(int screenWidth, int screenHeight)
 	{
+		m_ScrWidth = screenWidth;
+		m_ScrHeight = screenHeight;
+
 		unsigned int vbo;
 		unsigned int ebo;
 
@@ -60,17 +65,20 @@ namespace BoidAgent
 		shader->use();
 
 		shader->setMat4("model", glm::rotate(glm::mat4(1.0f), glm::radians(-25.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
-		shader->setMat4("view", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f)));
-		shader->setMat4("projection", glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f));
+		//shader->setMat4("view", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f)));
+		//shader->setMat4("projection", glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f));
 	}
 
-	void Render()
+	void Render(Camera camera)
 	{
 		shader->use();
 
+		shader->setMat4("projection", glm::perspective(glm::radians(camera.Zoom), m_ScrWidth / m_ScrHeight, 0.1f, 100.0f));
+		shader->setMat4("view", camera.GetViewMatrix());
+
 		float time = (float)glfwGetTime();
 		float speed = 25;
-		shader->setMat4("model", glm::rotate(glm::mat4(1.0f), glm::radians(time) * speed, glm::vec3(1.0f, 0.0f, 0.0f)));
+		//shader->setMat4("model", glm::rotate(glm::mat4(1.0f), glm::radians(time) * speed, glm::vec3(1.0f, 0.0f, 0.0f)));
 
 		glBindVertexArray(vao);
 

@@ -1,6 +1,8 @@
 #include "Ui.h"
 #include "BoidAgent.h"
 #include "imgui/imgui.h"
+#include "Input.h"
+#include "Camera.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -33,14 +35,28 @@ int main()
 		return -1;
 	}
 
+	glEnable(GL_DEPTH_TEST);
+
 	BoidAgent::Init(SCR_WIDTH, SCR_HEIGHT);
 	Ui::Init(window);
+	Input::Init(window);
 
-	while (!glfwWindowShouldClose(window))
+	Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
+	
+while (!glfwWindowShouldClose(window))
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		Input::Process(window);
 
-		BoidAgent::Render();
+		if (Input::ExitActionPerformed)
+		{
+			glfwSetWindowShouldClose(window, true);
+		}
+
+		camera.RotateAroundCenter(Input::XDiff, Input::YDiff);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		BoidAgent::Render(camera);
 
 		Ui::Render();
 
