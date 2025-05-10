@@ -7,6 +7,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "CameraController.h"
 
 const unsigned int SCR_WIDTH = 1920 / 2;
 const unsigned int SCR_HEIGHT = 1080 / 2;
@@ -44,6 +45,7 @@ int main()
 	Input::Init(window);
 
 	Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
+	CameraController camController(&camera);
 
 	//float previousTime = 0;
 	//float currentTime = 0;
@@ -60,12 +62,7 @@ int main()
 			glfwSetWindowShouldClose(window, true);
 		}
 
-		if (Input::IsDragging)
-		{
-			camera.RotateAroundCenter(Input::XDiff, -Input::YDiff);
-		}
-
-		//camera.ProcessMouseMovement(Input::XDiff, -Input::YDiff);
+		camController.Update();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

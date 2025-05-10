@@ -38,12 +38,6 @@ public:
 	float MouseSensitivity;
 	float Zoom;
 
-	float RotateSensitivity = 0.3f;
-	glm::vec3 FocalPoint = glm::vec3(0.0f, 0.0f, 0.0f);
-	float FocalDistance = 10;
-	float Polar = 90;
-	float Azimuthal = 90;
-
 	// constructor with vectors
 	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 	{
@@ -115,25 +109,15 @@ public:
 			Zoom = 45.0f;
 	}
 
-	void RotateAroundCenter(float xoffset, float yoffset)
+	void updateCameraVectors_Front()
 	{
-		xoffset *= RotateSensitivity;
-		yoffset *= RotateSensitivity;
+		Front = glm::normalize(Front);
+		Right = glm::normalize(glm::cross(Front, WorldUp));
+		Up = glm::normalize(glm::cross(Right, Front));
 
-		Polar += yoffset;
-		Azimuthal += xoffset;
-
-		if (Polar > 179.0f)
-			Polar = 179.0f;
-		if (Polar < 1.0f)
-			Polar = 1.0f;
-
-		Position.x = FocalDistance * sin(glm::radians(Polar)) * cos(glm::radians(Azimuthal));
-		Position.y = FocalDistance * cos(glm::radians(Polar));
-		Position.z = FocalDistance * sin(glm::radians(Polar)) * sin(glm::radians(Azimuthal));
-
-		Front = -Position;
-		updateCameraVectors_Front();
+		double pitchRadians = asin(Front.y); // must protect against Front.y values outside of [-1, 1]
+		Pitch = glm::degrees(pitchRadians);
+		Yaw = glm::degrees(asin(Front.z / cos(pitchRadians))); // must protect against pitchRadians equals 0
 	}
 
 private:
@@ -149,17 +133,6 @@ private:
 		// also re-calculate the Right and Up vector
 		Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
 		Up = glm::normalize(glm::cross(Right, Front));
-	}
-
-	void updateCameraVectors_Front()
-	{
-		Front = glm::normalize(Front);
-		Right = glm::normalize(glm::cross(Front, WorldUp));
-		Up = glm::normalize(glm::cross(Right, Front));
-
-		double pitchRadians = asin(Front.y); // must protect against Front.y values outside of [-1, 1]
-		Pitch = glm::degrees(pitchRadians);
-		Yaw = glm::degrees(asin(Front.z / cos(pitchRadians))); // must protect against pitchRadians equals 0
 	}
 };
 #endif
