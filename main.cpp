@@ -8,8 +8,8 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-const unsigned int SCR_WIDTH = 1920;
-const unsigned int SCR_HEIGHT = 1080;
+const unsigned int SCR_WIDTH = 1920 / 2;
+const unsigned int SCR_HEIGHT = 1080 / 2;
 
 int main()
 {
@@ -28,6 +28,8 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -43,13 +45,13 @@ int main()
 
 	Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
 
-	float previousTime = 0;
-	float currentTime = 0;
+	//float previousTime = 0;
+	//float currentTime = 0;
 	while (!glfwWindowShouldClose(window))
 	{
-		previousTime = currentTime;
-		currentTime = glfwGetTime();
-		float deltaTime = currentTime - previousTime;
+		//previousTime = currentTime;
+		//currentTime = glfwGetTime();
+		//float deltaTime = currentTime - previousTime;
 
 		Input::Process(window);
 
@@ -60,8 +62,10 @@ int main()
 
 		if (Input::IsDragging)
 		{
-			camera.RotateAroundCenter(Input::XDiff, Input::YDiff, deltaTime);
+			camera.RotateAroundCenter(Input::XDiff, -Input::YDiff);
 		}
+
+		//camera.ProcessMouseMovement(Input::XDiff, -Input::YDiff);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

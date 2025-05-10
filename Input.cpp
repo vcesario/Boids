@@ -6,7 +6,7 @@ namespace Input
 {
 	void HandleKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	void HandleMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-	
+
 	bool ExitActionPerformed = false;
 	double XDiff = 0, YDiff = 0;
 	bool IsDragging = false;
@@ -17,19 +17,20 @@ namespace Input
 	{
 		glfwSetKeyCallback(window, HandleKeyCallback);
 		glfwSetMouseButtonCallback(window, HandleMouseButtonCallback);
+
+		glfwGetCursorPos(window, &m_XCurrent, &m_YCurrent);
+		m_XPrevious = m_XCurrent;
+		m_YPrevious = m_YCurrent;
 	}
 
 	void Process(GLFWwindow* window)
 	{
-		if (IsDragging)
-		{
-			m_XPrevious = m_XCurrent;
-			m_YPrevious = m_YCurrent;
-			glfwGetCursorPos(window, &m_XCurrent, &m_YCurrent);
+		m_XPrevious = m_XCurrent;
+		m_YPrevious = m_YCurrent;
+		glfwGetCursorPos(window, &m_XCurrent, &m_YCurrent);
 
-			XDiff = m_XCurrent - m_XPrevious;
-			YDiff = m_YCurrent - m_YPrevious;
-		}
+		XDiff = m_XCurrent - m_XPrevious;
+		YDiff = m_YCurrent - m_YPrevious;
 	}
 
 	void HandleKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

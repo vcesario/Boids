@@ -76,10 +76,6 @@ namespace BoidAgent
 		shader->setMat4("projection", glm::perspective(glm::radians(camera.Zoom), m_ScrWidth / m_ScrHeight, 0.1f, 100.0f));
 		shader->setMat4("view", camera.GetViewMatrix());
 
-		float time = (float)glfwGetTime();
-		float speed = 25;
-		//shader->setMat4("model", glm::rotate(glm::mat4(1.0f), glm::radians(time) * speed, glm::vec3(1.0f, 0.0f, 0.0f)));
-
 		glBindVertexArray(vao);
 
 		glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0);
