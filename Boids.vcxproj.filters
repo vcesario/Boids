@@ -112,5 +112,11 @@
     <None Include="AgentShader.frag">
       <Filter>Source Files\Shaders</Filter>
     </None>
+    <None Include="BoxShader.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="BoxShader.frag">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
