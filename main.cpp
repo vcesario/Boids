@@ -1,13 +1,14 @@
+#include "imgui/imgui.h"
 #include "Ui.h"
 #include "BoidAgent.h"
-#include "imgui/imgui.h"
 #include "Input.h"
 #include "Camera.h"
+#include "CameraController.h"
+#include "Globals.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include "CameraController.h"
 
 const unsigned int SCR_WIDTH = 1920 / 2;
 const unsigned int SCR_HEIGHT = 1080 / 2;
@@ -47,28 +48,30 @@ int main()
 	Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
 	CameraController camController(&camera);
 
-	//float previousTime = 0;
-	//float currentTime = 0;
+	float previousTime = 0;
+	float currentTime = 0;
+	Globals::FRAME_COUNT = -1;
 	while (!glfwWindowShouldClose(window))
 	{
-		//previousTime = currentTime;
-		//currentTime = glfwGetTime();
-		//float deltaTime = currentTime - previousTime;
+		Globals::FRAME_COUNT++;
+		previousTime = currentTime;
+		currentTime = glfwGetTime();
+		float deltaTime = currentTime - previousTime;
 
 		Input::Process(window);
 
-		if (Input::ExitActionPerformed)
+		if (Input::IsActionActive(Input::EXIT))
 		{
 			glfwSetWindowShouldClose(window, true);
 		}
 
-		camController.Update();
+		camController.Update(deltaTime);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		BoidAgent::Render(camera);
 
-		Ui::Render();
+		//Ui::Render();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

@@ -1,50 +1,149 @@
+#pragma once
 #include "Camera.h"
+
+enum Camera_Movement {
+	FORWARD,
+	BACKWARD,
+	LEFT,
+	RIGHT
+};
 
 class CameraController
 {
 public:
+	float PanSensitivity = 0.05f;
 	float RotateSensitivity = 0.3f;
 	glm::vec3 FocalPoint = glm::vec3(0.0f, 0.0f, 0.0f);
-	float FocalDistance = 10;
-	float Polar = 90;
-	float Azimuthal = 90;
 	Camera* m_Camera;
+	float MovementSpeed = 2.5f;
 
 	CameraController(Camera* camera)
 	{
 		m_Camera = camera;
 	}
 
-	void Update()
+	void Update(float deltaTime)
 	{
-		if (Input::IsDragging)
+		if (Input::IsActionActive(Input::LEFTDRAG))
 		{
-			RotateAroundFocal(Input::XDiff, -Input::YDiff);
+			RotateAroundFocalPoint(Input::XDiff, -Input::YDiff);
+		}
+
+		if (Input::IsActionActive(Input::RIGHTDRAG))
+		{
+			Pan(Input::XDiff, -Input::YDiff);
+		}
+
+		if (Input::IsActionDown(Input::ZOOM))
+		{
+			Zoom(Input::ScrollYDiff);
+		}
+
+		if (Input::IsActionDown(Input::RESETFOCUS))
+		{
+			ResetFocalPoint();
+		}
+
+		if (Input::IsActionActive(Input::FORWARD))
+		{
+			Move
+			(FORWARD, deltaTime);
+		}
+		else if (Input::IsActionActive(Input::BACKWARD))
+		{
+			Move(BACKWARD, deltaTime);
+		}
+		if (Input::IsActionActive(Input::PANLEFT))
+		{
+			Move(LEFT, deltaTime);
+		}
+		else if (Input::IsActionActive(Input::PANRIGHT))
+		{
+			Move(RIGHT, deltaTime);
 		}
 	}
 
-	void RotateAroundFocal(float xoffset, float yoffset)
+private:
+	void Pan(float xoffset, float yoffset)
 	{
-		xoffset *= RotateSensitivity;
-		yoffset *= RotateSensitivity;
+		xoffset *= PanSensitivity;
+		yoffset *= PanSensitivity;
 
-		Polar += yoffset;
-		Azimuthal += xoffset;
+		glm::vec3 verticalStep = m_Camera->Up * yoffset;
+		glm::vec3 horizontalStep = m_Camera->Right * xoffset;
 
-		if (Polar > 179.0f)
-			Polar = 179.0f;
-		if (Polar < 1.0f)
-			Polar = 1.0f;
+		m_Camera->Position += verticalStep + horizontalStep;
+		FocalPoint += verticalStep + horizontalStep;
+	}
 
-		glm::vec3 position = m_Camera->Position;
+	void RotateAroundFocalPoint(float xoffset, float yoffset)
+	{
+		glm::vec3 cameraPosOrigin = m_Camera->Position - FocalPoint;
+		float focalDistance = glm::length(cameraPosOrigin);
 
-		position.x = FocalDistance * sin(glm::radians(Polar)) * cos(glm::radians(Azimuthal));
-		position.y = FocalDistance * cos(glm::radians(Polar));
-		position.z = FocalDistance * sin(glm::radians(Polar)) * sin(glm::radians(Azimuthal));
+		float polar = glm::degrees(acos(cameraPosOrigin.y / focalDistance));
+		float azimuthal = glm::degrees(atan2(cameraPosOrigin.z, cameraPosOrigin.x));
 
-		m_Camera->Position = position;
+		polar += yoffset * RotateSensitivity;
+		azimuthal += xoffset * RotateSensitivity;
 
-		m_Camera->Front = -position;
+		if (polar > 179.0f)
+			polar = 179.0f;
+		if (polar < 1.0f)
+			polar = 1.0f;
+
+		cameraPosOrigin.x = focalDistance * sin(glm::radians(polar)) * cos(glm::radians(azimuthal));
+		cameraPosOrigin.y = focalDistance * cos(glm::radians(polar));
+		cameraPosOrigin.z = focalDistance * sin(glm::radians(polar)) * sin(glm::radians(azimuthal));
+
+		m_Camera->Position = cameraPosOrigin + FocalPoint;
+
+		m_Camera->Front = FocalPoint - m_Camera->Position;
 		m_Camera->updateCameraVectors_Front();
+	}
+
+	void Move(Camera_Movement direction, float deltaTime)
+	{
+		float velocity = MovementSpeed * deltaTime;
+		if (direction == FORWARD)
+		{
+			glm::vec3 step = m_Camera->Front * velocity;
+			m_Camera->Position += step;
+			FocalPoint += step;
+		}
+		if (direction == BACKWARD)
+		{
+			glm::vec3 step = m_Camera->Front * velocity;
+			m_Camera->Position -= step;
+			FocalPoint -= step;
+		}
+		if (direction == LEFT)
+		{
+			glm::vec3 step = m_Camera->Right * velocity;
+			m_Camera->Position -= step;
+			FocalPoint -= step;
+		}
+		if (direction == RIGHT)
+		{
+			glm::vec3 step = m_Camera->Right * velocity;
+			m_Camera->Position += step;
+			FocalPoint += step;
+		}
+	}
+
+	// processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
+	void Zoom(float yoffset)
+	{
+		m_Camera->Zoom -= (float)yoffset;
+		if (m_Camera->Zoom < 1.0f)
+			m_Camera->Zoom = 1.0f;
+		if (m_Camera->Zoom > 45.0f)
+			m_Camera->Zoom = 45.0f;
+	}
+
+	void ResetFocalPoint()
+	{
+		m_Camera->Position -= FocalPoint;
+		FocalPoint = glm::vec3(0);
 	}
 };

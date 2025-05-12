@@ -1,3 +1,4 @@
+#pragma once
 #include "Shader.h"
 #include "Camera.h"
 
@@ -78,6 +79,15 @@ namespace BoidAgent
 
 		glBindVertexArray(vao);
 
+		glm::mat4 baseRotation = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+		shader->setMat4("model", baseRotation);
+		glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0);
+
+		shader->setMat4("model", glm::translate(baseRotation, glm::vec3(4, 0, 0)));
+		glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0);
+
+		shader->setMat4("model", glm::translate(baseRotation, glm::vec3(0, 2, 0)));
 		glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0);
 	}
 }
