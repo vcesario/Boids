@@ -14,7 +14,6 @@ public:
 	float PanSensitivity = 0.05f;
 	float RotateSensitivity = 0.3f;
 	glm::vec3 FocalPoint = glm::vec3(0.0f, 0.0f, 0.0f);
-	Camera* m_Camera;
 	float MovementSpeed = 2.5f;
 
 	CameraController(Camera* camera)
@@ -27,10 +26,16 @@ public:
 		if (Input::IsActionActive(Input::LEFTDRAG))
 		{
 			RotateAroundFocalPoint(Input::XDiff, -Input::YDiff);
+			SetSmoothDiff(Input::XDiff, Input::YDiff);
+		}
+		else
+		{
+			SmoothRotate();
 		}
 
 		if (Input::IsActionActive(Input::RIGHTDRAG))
 		{
+			m_IsResettingFocalPoint = false;
 			Pan(Input::XDiff, -Input::YDiff);
 		}
 
@@ -41,42 +46,75 @@ public:
 
 		if (Input::IsActionDown(Input::RESETFOCUS))
 		{
-			ResetFocalPoint();
+			m_IsResettingFocalPoint = true;
 		}
 
 		if (Input::IsActionActive(Input::FORWARD))
 		{
-			Move
-			(FORWARD, deltaTime);
+			m_IsResettingFocalPoint = false;
+			Move(FORWARD, deltaTime);
 		}
 		else if (Input::IsActionActive(Input::BACKWARD))
 		{
+			m_IsResettingFocalPoint = false;
 			Move(BACKWARD, deltaTime);
 		}
 		if (Input::IsActionActive(Input::PANLEFT))
 		{
+			m_IsResettingFocalPoint = false;
 			Move(LEFT, deltaTime);
 		}
 		else if (Input::IsActionActive(Input::PANRIGHT))
 		{
+			m_IsResettingFocalPoint = false;
 			Move(RIGHT, deltaTime);
+		}
+
+		if (m_IsResettingFocalPoint)
+		{
+			glm::vec3 distance = -FocalPoint;
+			float length = glm::length(distance);
+
+			float minLength = 0.06f;
+			float maxLength = 1.5f;
+			float maxRelativeLengthRatio = 0.4f;
+
+			if (length < minLength)
+			{
+				SetFocalPoint(glm::vec3(0));
+				m_IsResettingFocalPoint = false;
+			}
+			else
+			{
+				glm::vec3 direction = glm::normalize(distance);
+
+				float speed = glm::min(length * maxRelativeLengthRatio, maxLength);
+				speed = glm::max(speed, minLength);
+
+				SetFocalPoint(FocalPoint + direction * speed);
+			}
 		}
 	}
 
 private:
-	void Pan(float xoffset, float yoffset)
-	{
-		xoffset *= PanSensitivity;
-		yoffset *= PanSensitivity;
+	const float ROTATE_ATTENUATION = 0.92f;
+	Camera* m_Camera;
+	float SmoothXDiff, SmoothYDiff;
+	bool m_IsResettingFocalPoint = false;
 
-		glm::vec3 verticalStep = m_Camera->Up * yoffset;
-		glm::vec3 horizontalStep = m_Camera->Right * xoffset;
+	void Pan(float xOffset, float yOffset)
+	{
+		xOffset *= PanSensitivity;
+		yOffset *= PanSensitivity;
+
+		glm::vec3 verticalStep = m_Camera->Up * yOffset;
+		glm::vec3 horizontalStep = m_Camera->Right * xOffset;
 
 		m_Camera->Position += verticalStep + horizontalStep;
 		FocalPoint += verticalStep + horizontalStep;
 	}
 
-	void RotateAroundFocalPoint(float xoffset, float yoffset)
+	void RotateAroundFocalPoint(float xOffset, float yOffset)
 	{
 		glm::vec3 cameraPosOrigin = m_Camera->Position - FocalPoint;
 		float focalDistance = glm::length(cameraPosOrigin);
@@ -84,8 +122,8 @@ private:
 		float polar = glm::degrees(acos(cameraPosOrigin.y / focalDistance));
 		float azimuthal = glm::degrees(atan2(cameraPosOrigin.z, cameraPosOrigin.x));
 
-		polar += yoffset * RotateSensitivity;
-		azimuthal += xoffset * RotateSensitivity;
+		polar += yOffset * RotateSensitivity;
+		azimuthal += xOffset * RotateSensitivity;
 
 		if (polar > 179.0f)
 			polar = 179.0f;
@@ -131,19 +169,39 @@ private:
 		}
 	}
 
-	// processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-	void Zoom(float yoffset)
+	void Zoom(float yOffset)
 	{
-		m_Camera->Zoom -= (float)yoffset;
+		m_Camera->Zoom -= (float)yOffset;
 		if (m_Camera->Zoom < 1.0f)
 			m_Camera->Zoom = 1.0f;
 		if (m_Camera->Zoom > 45.0f)
 			m_Camera->Zoom = 45.0f;
 	}
 
-	void ResetFocalPoint()
+	void SetFocalPoint(glm::vec3 newPoint)
 	{
-		m_Camera->Position -= FocalPoint;
-		FocalPoint = glm::vec3(0);
+		glm::vec3 diff = newPoint - FocalPoint;
+
+		m_Camera->Position += diff;
+		FocalPoint = newPoint;
+	}
+
+	void SetSmoothDiff(float xOffset, float yOffset)
+	{
+		SmoothXDiff = xOffset;
+		SmoothYDiff = yOffset;
+	}
+
+	void SmoothRotate()
+	{
+		if (abs(SmoothXDiff) < 0.01f && abs(SmoothYDiff) < 0.01f)
+		{
+			return;
+		}
+
+		SmoothXDiff *= ROTATE_ATTENUATION;
+		SmoothYDiff *= ROTATE_ATTENUATION;
+
+		RotateAroundFocalPoint(SmoothXDiff, -SmoothYDiff);
 	}
 };
