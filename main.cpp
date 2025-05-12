@@ -66,6 +66,7 @@ int main()
 		}
 
 		camController.Update(deltaTime);
+		BoidAgent::Update(deltaTime);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

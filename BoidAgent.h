@@ -10,9 +10,15 @@
 
 namespace BoidAgent
 {
-	const float BOX_WIDTH = 2.0f;
+	void WrapPositionToBox(glm::vec3* position);
+
+	const float BOX_WIDTH = 5.33f;
+	const float BOX_HALFWIDTH = BOX_WIDTH / 2;
 	const float BOX_HEIGHT = 4.0f;
+	const float BOX_HALFHEIGHT = BOX_HEIGHT / 2;
 	const float BOX_LENGTH = 3.0f;
+	const float BOX_HALFLENGTH = BOX_LENGTH / 2;
+	const float MOVE_SPEED = 3.29f;
 
 	float m_BoxVertices[] = {
 		-1.0f, -1.0f, -1.0f, // 0 - left bottom back
@@ -24,7 +30,6 @@ namespace BoidAgent
 		 1.0f,  1.0f,  1.0f, // 6 - right top front
 		-1.0f,  1.0f,  1.0f  // 7 - left top front
 	};
-
 	unsigned int m_BoxIndices[] = {
 		// back face
 		0, 1,
@@ -53,7 +58,6 @@ namespace BoidAgent
 		  0.5f, 0.0f,  0.5f,   // Vertex 3: front-right
 		 -0.5f, 0.0f,  0.5f    // Vertex 4: front-left
 	};
-
 	unsigned int m_AgentIndices[] = {
 		// Side triangles (tip to base)
 		0, 1, 2,   // Tip to back-left and back-right
@@ -66,16 +70,22 @@ namespace BoidAgent
 		1, 3, 4    // Base triangle 2
 	};
 
-	unsigned int m_AgentVao;
-	unsigned int m_BoxVao;
+	unsigned int m_AgentVao, m_BoxVao;
 	std::unique_ptr<Shader> m_AgentShader, m_BoxShader;
 	float m_ScrWidth, m_ScrHeight;
+
+	glm::vec3 m_AgentPositions[] = {
+		glm::vec3(0, 0, 0),
+		glm::vec3(0, 2, 1),
+		glm::vec3(3, 0, 0)
+	};
 
 	void Init(int screenWidth, int screenHeight)
 	{
 		m_ScrWidth = screenWidth;
 		m_ScrHeight = screenHeight;
 
+		// agent
 		unsigned int agentVbo;
 		unsigned int agentEbo;
 
@@ -96,13 +106,10 @@ namespace BoidAgent
 		glEnableVertexAttribArray(0);
 
 		m_AgentShader = std::make_unique<Shader>("AgentShader.vert", "AgentShader.frag");
-
 		m_AgentShader->use();
-
 		m_AgentShader->setMat4("model", glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
-		//shader->setMat4("view", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f)));
-		//shader->setMat4("projection", glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f));
 
+		// box
 		unsigned int boxVbo;
 		unsigned int boxEbo;
 
@@ -123,8 +130,33 @@ namespace BoidAgent
 		glEnableVertexAttribArray(0);
 
 		m_BoxShader = std::make_unique<Shader>("BoxShader.vert", "BoxShader.frag");
-		//m_BoxShader->use();
+	}
 
+	void Update(float deltaTime)
+	{
+		m_AgentPositions[0] += glm::vec3(0.2f, -1, -1) * deltaTime * MOVE_SPEED;
+		WrapPositionToBox(&m_AgentPositions[0]);
+	}
+
+	void WrapPositionToBox(glm::vec3* position)
+	{
+		if (position->x > BOX_HALFWIDTH
+			|| position->x < -BOX_HALFWIDTH)
+		{
+			position->x = remainder(position->x, BOX_WIDTH);
+		}
+
+		if (position->y > BOX_HALFHEIGHT
+			|| position->y < -BOX_HALFHEIGHT)
+		{
+			position->y = remainder(position->y, BOX_HEIGHT);
+		}
+
+		if (position->z > BOX_HALFLENGTH
+			|| position->z < -BOX_HALFLENGTH)
+		{
+			position->z = remainder(position->z, BOX_LENGTH);
+		}
 	}
 
 	void Render(Camera camera)
@@ -140,22 +172,18 @@ namespace BoidAgent
 		m_AgentShader->setMat4("view", view);
 
 		glm::mat4 agentRotScale = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-		m_AgentShader->setMat4("model", agentRotScale);
-		glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0);
-
-		m_AgentShader->setMat4("model", glm::translate(agentRotScale, glm::vec3(4, 0, 0)));
-		glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0);
-
-		m_AgentShader->setMat4("model", glm::translate(agentRotScale, glm::vec3(0, 2, 0)));
-		glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0);
+		for (GLubyte i = 0; i < m_AgentPositions->length(); i++)
+		{
+			m_AgentShader->setMat4("model", glm::translate(agentRotScale, m_AgentPositions[i]));
+			glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0);
+		}
 
 		// bounding box
 		glBindVertexArray(m_BoxVao);
 
 		m_BoxShader->use();
-		glm::mat4 boxRotScale = glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(BOX_WIDTH, BOX_HEIGHT, BOX_LENGTH)),
-											glm::radians(0.0f), glm::vec3(1, 0, 0));
+		glm::mat4 boxRotScale = glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(BOX_WIDTH / 2, BOX_HEIGHT / 2, BOX_LENGTH / 2)),
+			glm::radians(0.0f), glm::vec3(1, 0, 0));
 		m_BoxShader->setMat4("model", boxRotScale);
 		m_BoxShader->setMat4("projection", projection);
 		m_BoxShader->setMat4("view", view);
