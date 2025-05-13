@@ -145,7 +145,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BoidAgent.h" />
+    <ClInclude Include="BoidManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="Globals.h" />
@@ -163,8 +163,8 @@
     <ClInclude Include="Ui.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="AgentShader.frag" />
-    <None Include="AgentShader.vert" />
+    <None Include="BoidShader.frag" />
+    <None Include="BoidShader.vert" />
     <None Include="BoxShader.frag" />
     <None Include="BoxShader.vert" />
   </ItemGroup>

@@ -1,6 +1,6 @@
 #include "imgui/imgui.h"
 #include "Ui.h"
-#include "BoidAgent.h"
+#include "BoidManager.h"
 #include "Input.h"
 #include "Camera.h"
 #include "CameraController.h"
@@ -41,11 +41,11 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
-	BoidAgent::Init(SCR_WIDTH, SCR_HEIGHT);
+	BoidManager::Init(SCR_WIDTH, SCR_HEIGHT);
 	Ui::Init(window);
 	Input::Init(window);
 
-	Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
+	Camera camera(glm::vec3(0.0f, 0.0f, 25.0f));
 	CameraController camController(&camera);
 
 	float previousTime = 0;
@@ -66,11 +66,11 @@ int main()
 		}
 
 		camController.Update(deltaTime);
-		BoidAgent::Update(deltaTime);
+		BoidManager::Update(deltaTime);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		BoidAgent::Render(camera);
+		BoidManager::Render(camera);
 
 		//Ui::Render();
 

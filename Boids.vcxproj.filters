@@ -83,7 +83,7 @@
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="BoidAgent.h">
+    <ClInclude Include="BoidManager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
@@ -106,10 +106,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="AgentShader.vert">
+    <None Include="BoidShader.vert">
       <Filter>Source Files\Shaders</Filter>
     </None>
-    <None Include="AgentShader.frag">
+    <None Include="BoidShader.frag">
       <Filter>Source Files\Shaders</Filter>
     </None>
     <None Include="BoxShader.vert">
