@@ -132,8 +132,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="glad.c" />
-    <ClCompile Include="Globals.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
@@ -143,6 +143,8 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Ui.cpp" />
+    <ClCompile Include="Useful.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoidManager.h" />
@@ -161,6 +163,7 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Ui.h" />
+    <ClInclude Include="Useful.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BoidShader.frag" />

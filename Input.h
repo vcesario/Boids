@@ -1,3 +1,5 @@
+#pragma once
+
 #include <GLFW/glfw3.h>
 
 namespace Input
@@ -20,7 +22,8 @@ namespace Input
 	extern double XDiff, YDiff, ScrollYDiff;
 
 	void Init(GLFWwindow* window);
-	void Process(GLFWwindow* window);
+	void Update();
 	bool IsActionActive(Input_Action action);
 	bool IsActionDown(Input_Action action);
+	bool IsActionUp(Input_Action action);
 }

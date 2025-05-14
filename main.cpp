@@ -13,6 +13,8 @@
 const unsigned int SCR_WIDTH = 1920 / 2;
 const unsigned int SCR_HEIGHT = 1080 / 2;
 
+unsigned int Globals::FRAME_COUNT;
+
 int main()
 {
 	glfwInit();
@@ -42,8 +44,8 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	BoidManager::Init(SCR_WIDTH, SCR_HEIGHT);
-	Ui::Init(window);
 	Input::Init(window);
+	Ui::Init(window);
 
 	Camera camera(glm::vec3(0.0f, 0.0f, 25.0f));
 	CameraController camController(&camera);
@@ -58,11 +60,12 @@ int main()
 		currentTime = glfwGetTime();
 		float deltaTime = currentTime - previousTime;
 
-		Input::Process(window);
+		Input::Update();
 
 		if (Input::IsActionActive(Input::EXIT))
 		{
 			glfwSetWindowShouldClose(window, true);
+			continue;
 		}
 
 		camController.Update(deltaTime);
@@ -72,7 +75,7 @@ int main()
 
 		BoidManager::Render(camera);
 
-		//Ui::Render();
+		Ui::Render(camController);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

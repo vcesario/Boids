@@ -1,8 +1,8 @@
-#include "Input.h"
-#include "Globals.h"
-
 #include <iostream>
 #include <unordered_map>
+
+#include "Input.h"
+#include "Globals.h"
 
 namespace Input
 {
@@ -18,6 +18,9 @@ namespace Input
 	double m_XPrevious, m_YPrevious, m_XCurrent, m_YCurrent;
 
 	std::unordered_map<Input_Action, int> m_ActiveActions;
+	std::unordered_map<Input_Action, int> m_InactiveActions;
+
+	GLFWwindow* m_Window;
 
 	void Init(GLFWwindow* window)
 	{
@@ -28,13 +31,15 @@ namespace Input
 		glfwGetCursorPos(window, &m_XCurrent, &m_YCurrent);
 		m_XPrevious = m_XCurrent;
 		m_YPrevious = m_YCurrent;
+
+		m_Window = window;
 	}
 
-	void Process(GLFWwindow* window)
+	void Update()
 	{
 		m_XPrevious = m_XCurrent;
 		m_YPrevious = m_YCurrent;
-		glfwGetCursorPos(window, &m_XCurrent, &m_YCurrent);
+		glfwGetCursorPos(m_Window, &m_XCurrent, &m_YCurrent);
 
 		XDiff = m_XCurrent - m_XPrevious;
 		YDiff = m_YCurrent - m_YPrevious;
@@ -50,7 +55,8 @@ namespace Input
 			}
 			else if (action == GLFW_RELEASE)
 			{
-				m_ActiveActions.erase(EXIT);
+				//m_ActiveActions.erase(EXIT);
+				m_InactiveActions[EXIT] = Globals::FRAME_COUNT;
 			}
 		}
 
@@ -62,7 +68,8 @@ namespace Input
 			}
 			else if (action == GLFW_RELEASE)
 			{
-				m_ActiveActions.erase(FORWARD);
+				//m_ActiveActions.erase(FORWARD);
+				m_InactiveActions[FORWARD] = Globals::FRAME_COUNT;
 			}
 		}
 		else if (key == GLFW_KEY_S)
@@ -73,7 +80,8 @@ namespace Input
 			}
 			else if (action == GLFW_RELEASE)
 			{
-				m_ActiveActions.erase(BACKWARD);
+				//m_ActiveActions.erase(BACKWARD);
+				m_InactiveActions[BACKWARD] = Globals::FRAME_COUNT;
 			}
 		}
 
@@ -85,7 +93,8 @@ namespace Input
 			}
 			else if (action == GLFW_RELEASE)
 			{
-				m_ActiveActions.erase(PANLEFT);
+				//m_ActiveActions.erase(PANLEFT);
+				m_InactiveActions[PANLEFT] = Globals::FRAME_COUNT;
 			}
 		}
 		else if (key == GLFW_KEY_D)
@@ -96,7 +105,8 @@ namespace Input
 			}
 			else if (action == GLFW_RELEASE)
 			{
-				m_ActiveActions.erase(PANRIGHT);
+				//m_ActiveActions.erase(PANRIGHT);
+				m_InactiveActions[PANRIGHT] = Globals::FRAME_COUNT;
 			}
 		}
 	}
@@ -115,7 +125,8 @@ namespace Input
 			}
 			if (action == GLFW_RELEASE)
 			{
-				m_ActiveActions.erase(LEFTDRAG);
+				m_InactiveActions[LEFTDRAG] = Globals::FRAME_COUNT;
+				//m_ActiveActions.erase(LEFTDRAG);
 			}
 		}
 		else if (button == GLFW_MOUSE_BUTTON_RIGHT)
@@ -130,7 +141,8 @@ namespace Input
 			}
 			if (action == GLFW_RELEASE)
 			{
-				m_ActiveActions.erase(RIGHTDRAG);
+				m_InactiveActions[RIGHTDRAG] = Globals::FRAME_COUNT;
+				//m_ActiveActions.erase(RIGHTDRAG);
 			}
 		}
 		else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
@@ -141,7 +153,8 @@ namespace Input
 			}
 			if (action == GLFW_RELEASE)
 			{
-				m_ActiveActions.erase(RESETFOCUS);
+				m_InactiveActions[RESETFOCUS] = Globals::FRAME_COUNT;
+				//m_ActiveActions.erase(RESETFOCUS);
 			}
 		}
 	}
@@ -149,18 +162,42 @@ namespace Input
 	void HandleMouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		m_ActiveActions[ZOOM] = Globals::FRAME_COUNT;
+		m_InactiveActions[ZOOM] = Globals::FRAME_COUNT;
 		ScrollYDiff = yoffset;
 	}
 
 	bool IsActionActive(Input_Action action)
 	{
-		return m_ActiveActions.find(action) != m_ActiveActions.end();
+		// optimize: initialize the maps to always contain all actions from the getgo so I don't need to check if they exist
+		auto activeFrame = m_ActiveActions.find(action);
+		if (activeFrame == m_ActiveActions.end())
+		{
+			return false;
+		}
+
+		auto inactiveFrame = m_InactiveActions.find(action);
+		if (inactiveFrame == m_InactiveActions.end())
+		{
+			return true;
+		}
+
+		return  activeFrame->second > inactiveFrame->second;
 	}
 
 	bool IsActionDown(Input_Action action)
 	{
 		auto frame = m_ActiveActions.find(action);
 		if (frame == m_ActiveActions.end())
+		{
+			return false;
+		}
+		return (frame->second + 1) == Globals::FRAME_COUNT;
+	}
+
+	bool IsActionUp(Input_Action action)
+	{
+		auto frame = m_InactiveActions.find(action);
+		if (frame == m_InactiveActions.end())
 		{
 			return false;
 		}
