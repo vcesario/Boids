@@ -3,9 +3,10 @@
 
 #include "Ui.h"
 #include "Useful.h"
+#include "BoidManager.h"
 
 GLFWwindow* m_Window;
-const ImVec2 m_InspectorWindowSize(300, 250);
+const ImVec2 m_InspectorWindowSize(280, 400);
 const ImVec2 m_InspectorWindowPos(10, 100);
 
 void Ui::Init(GLFWwindow* window)
@@ -71,6 +72,24 @@ void Ui::Render(CameraController& camController)
 		ImGui::SliderFloat("Move Speed", &camController.MovementSpeed, 1.0f, 20.0f);
 		ImGui::SliderFloat("Rotate Speed", &camController.RotateSensitivity, 0.1f, 1.0f);
 		ImGui::SliderFloat("Pan Speed", &camController.PanSensitivity, 0.001f, 0.5f);
+	}
+
+	if (ImGui::CollapsingHeader("Boid Manager", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		ImGui::TextDisabled("Boid amount: %d", BoidManager::BOID_AMOUNT);
+		ImGui::DragFloat("MoveSpeed", &BoidManager::MoveSpeed, 0.001f, 0, 10);
+		ImGui::DragFloat("Cohesion Factor", &BoidManager::CohesionFactor, 0.001f, 0, 10);
+		ImGui::SliderFloat("Cohesion Distance", &BoidManager::CohesionDistance, 0, 50);
+		ImGui::DragFloat("Separation Factor", &BoidManager::SeparationFactor, 0.001f, 0, 10);
+		ImGui::SliderFloat("Separation Distance", &BoidManager::SeparationDistance, 0, 50);
+		ImGui::DragFloat("Alignment Factor", &BoidManager::AlignmentFactor, 0.001f, 0, 10);
+		ImGui::SliderFloat("Alignment Distance", &BoidManager::AlignmentDistance, 0, 50);
+	}
+
+
+	if (ImGui::Button("Reset Boids"))
+	{
+		BoidManager::ResetBoids();
 	}
 
 	ImGui::End();
