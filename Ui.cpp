@@ -1,5 +1,6 @@
-﻿//#define GLM_ENABLE_EXPERIMENTAL
-//#include <glm/gtx/string_cast.hpp>
+﻿#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 
 #include "Ui.h"
 #include "Useful.h"
@@ -8,6 +9,9 @@
 GLFWwindow* m_Window;
 const ImVec2 m_InspectorWindowSize(280, 400);
 const ImVec2 m_InspectorWindowPos(10, 100);
+
+void LoadValues();
+void SaveValues();
 
 void Ui::Init(GLFWwindow* window)
 {
@@ -86,7 +90,18 @@ void Ui::Render(CameraController& camController)
 		ImGui::SliderFloat("Alignment Distance", &BoidManager::AlignmentDistance, 0, 50);
 	}
 
+	if (ImGui::Button("Load values"))
+	{
+		LoadValues();
+	}
 
+	ImGui::SameLine();
+	if (ImGui::Button("Save values"))
+	{
+		SaveValues();
+	}
+
+	ImGui::SameLine();
 	if (ImGui::Button("Reset Boids"))
 	{
 		BoidManager::ResetBoids();
@@ -94,8 +109,78 @@ void Ui::Render(CameraController& camController)
 
 	ImGui::End();
 
-	//ImGui::ShowDemoWindow();
-
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void LoadValues()
+{
+	FILE* pFile;
+	pFile = fopen("boids.ini", "r");
+	if (pFile == NULL)
+	{
+		std::cout << "Error opening file boids.ini." << std::endl;
+		return;
+	}
+
+	char line[256];
+
+	while (fgets(line, sizeof(line), pFile))
+	{
+		char* equals = strchr(line, '=');
+		*equals = '\0';
+		char* key = line;
+		char* value = equals + 1;
+
+		if (strcmp(key, "MoveSpeed") == 0)
+		{
+			BoidManager::MoveSpeed = atof(value);
+		}
+		else if (strcmp(key, "CohesionFactor") == 0)
+		{
+			BoidManager::CohesionFactor = atof(value);
+		}
+		else if (strcmp(key, "CohesionDistance") == 0)
+		{
+			BoidManager::CohesionDistance = atof(value);
+		}
+		else if (strcmp(key, "SeparationFactor") == 0)
+		{
+			BoidManager::SeparationFactor = atof(value);
+		}
+		else if (strcmp(key, "SeparationDistance") == 0)
+		{
+			BoidManager::SeparationDistance = atof(value);
+		}
+		else if (strcmp(key, "AlignmentFactor") == 0)
+		{
+			BoidManager::AlignmentFactor = atof(value);
+		}
+		else if (strcmp(key, "AlignmentDistance") == 0)
+		{
+			BoidManager::AlignmentDistance = atof(value);
+		}
+	}
+
+	BoidManager::ResetBoids();
+}
+
+void SaveValues()
+{
+	FILE* pFile;
+	pFile = fopen("boids.ini", "w");
+	if (pFile == NULL)
+	{	
+		std::cout << "Error creating file boids.ini." << std::endl;
+		return;
+	}
+
+	fprintf(pFile, "MoveSpeed=%f\n", BoidManager::MoveSpeed);
+	fprintf(pFile, "CohesionFactor=%f\n", BoidManager::CohesionFactor);
+	fprintf(pFile, "CohesionDistance=%f\n", BoidManager::CohesionDistance);
+	fprintf(pFile, "SeparationFactor=%f\n", BoidManager::SeparationFactor);
+	fprintf(pFile, "SeparationDistance=%f\n", BoidManager::SeparationDistance);
+	fprintf(pFile, "AlignmentFactor=%f\n", BoidManager::AlignmentFactor);
+	fprintf(pFile, "AlignmentDistance=%f", BoidManager::AlignmentDistance);
+	fclose(pFile);
 }
