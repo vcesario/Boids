@@ -171,6 +171,8 @@
     <None Include="BoidShader.vert" />
     <None Include="BoxShader.frag" />
     <None Include="BoxShader.vert" />
+    <None Include="LineShader.frag" />
+    <None Include="LineShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

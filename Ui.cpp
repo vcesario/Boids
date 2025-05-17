@@ -49,25 +49,6 @@ void Ui::Render(CameraController& camController)
 	ImGui::SetWindowSize(m_InspectorWindowSize, ImGuiCond_Once);
 	ImGui::SetWindowPos(m_InspectorWindowPos, ImGuiCond_Once);
 
-	// VALUES
-	// 
-	// CAMERA
-	// (readonly) Cam Position
-	// (readonly) Cam Rotation
-	// (readonly) Cam Zoom
-	// Pan Sensitivity
-	// Rotate Sensitivity
-	// Movement Speed
-	//
-	// BOID MANAGER
-	// CohesionFactor
-	// CohesionDistance
-	// SeparationFactor
-	// SeparationDistance
-	// AlignmentFactor
-	// AlignmentDistance
-	// ---
-
 	if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::TextDisabled("Position: %s", ToString(camController.MasterCam->Position).c_str());
@@ -81,13 +62,13 @@ void Ui::Render(CameraController& camController)
 	if (ImGui::CollapsingHeader("Boid Manager", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGui::TextDisabled("Boid amount: %d", BoidManager::BOID_AMOUNT);
-		ImGui::DragFloat("MoveSpeed", &BoidManager::MoveSpeed, 0.001f, 0, 10);
-		ImGui::DragFloat("Cohesion Factor", &BoidManager::CohesionFactor, 0.001f, 0, 10);
-		ImGui::SliderFloat("Cohesion Distance", &BoidManager::CohesionDistance, 0, 50);
-		ImGui::DragFloat("Separation Factor", &BoidManager::SeparationFactor, 0.001f, 0, 10);
-		ImGui::SliderFloat("Separation Distance", &BoidManager::SeparationDistance, 0, 50);
-		ImGui::DragFloat("Alignment Factor", &BoidManager::AlignmentFactor, 0.001f, 0, 10);
-		ImGui::SliderFloat("Alignment Distance", &BoidManager::AlignmentDistance, 0, 50);
+		ImGui::SliderFloat("MoveSpeed", &BoidManager::MoveSpeed, 0, 10);
+		ImGui::SliderFloat("Angle of Sight", &BoidManager::AngleOfSight, -1, 1);
+		ImGui::SliderFloat("Sight Range", &BoidManager::SightRange, 0, 20);
+		ImGui::DragFloat("Cohesion Factor", &BoidManager::CohesionFactor, 0.005f, 0, 10);
+		ImGui::DragFloat("Separation Factor", &BoidManager::SeparationFactor, 0.005f, 0, 10);
+		ImGui::DragFloat("Alignment Factor", &BoidManager::AlignmentFactor, 0.005f, 0, 10);
+		ImGui::SliderFloat("Wall Avoidance Factor", &BoidManager::WallAvoidanceFactor, 0, 50);
 	}
 
 	if (ImGui::Button("Load values"))
@@ -136,29 +117,29 @@ void LoadValues()
 		{
 			BoidManager::MoveSpeed = atof(value);
 		}
+		else if (strcmp(key, "AngleOfSight") == 0)
+		{
+			BoidManager::AngleOfSight = atof(value);
+		}
+		else if (strcmp(key, "SightRange") == 0)
+		{
+			BoidManager::SightRange = atof(value);
+		}
 		else if (strcmp(key, "CohesionFactor") == 0)
 		{
 			BoidManager::CohesionFactor = atof(value);
-		}
-		else if (strcmp(key, "CohesionDistance") == 0)
-		{
-			BoidManager::CohesionDistance = atof(value);
 		}
 		else if (strcmp(key, "SeparationFactor") == 0)
 		{
 			BoidManager::SeparationFactor = atof(value);
 		}
-		else if (strcmp(key, "SeparationDistance") == 0)
-		{
-			BoidManager::SeparationDistance = atof(value);
-		}
 		else if (strcmp(key, "AlignmentFactor") == 0)
 		{
 			BoidManager::AlignmentFactor = atof(value);
 		}
-		else if (strcmp(key, "AlignmentDistance") == 0)
+		else if (strcmp(key, "WallAvoidanceFactor") == 0)
 		{
-			BoidManager::AlignmentDistance = atof(value);
+			BoidManager::WallAvoidanceFactor = atof(value);
 		}
 	}
 
@@ -176,11 +157,11 @@ void SaveValues()
 	}
 
 	fprintf(pFile, "MoveSpeed=%f\n", BoidManager::MoveSpeed);
+	fprintf(pFile, "AngleOfSight=%f\n", BoidManager::AngleOfSight);
+	fprintf(pFile, "SightRange=%f\n", BoidManager::SightRange);
 	fprintf(pFile, "CohesionFactor=%f\n", BoidManager::CohesionFactor);
-	fprintf(pFile, "CohesionDistance=%f\n", BoidManager::CohesionDistance);
 	fprintf(pFile, "SeparationFactor=%f\n", BoidManager::SeparationFactor);
-	fprintf(pFile, "SeparationDistance=%f\n", BoidManager::SeparationDistance);
 	fprintf(pFile, "AlignmentFactor=%f\n", BoidManager::AlignmentFactor);
-	fprintf(pFile, "AlignmentDistance=%f", BoidManager::AlignmentDistance);
+	fprintf(pFile, "WallAvoidanceFactor=%f\n", BoidManager::WallAvoidanceFactor);
 	fclose(pFile);
 }

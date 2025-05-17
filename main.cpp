@@ -1,14 +1,15 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
+
 #include "imgui/imgui.h"
+
+#include "Globals.h"
 #include "Ui.h"
 #include "BoidManager.h"
 #include "Input.h"
 #include "Camera.h"
 #include "CameraController.h"
-#include "Globals.h"
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
 
 const unsigned int SCR_WIDTH = 1920 / 2;
 const unsigned int SCR_HEIGHT = 1080 / 2;

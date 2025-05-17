@@ -130,5 +130,11 @@
     <None Include="BoxShader.frag">
       <Filter>Source Files\Shaders</Filter>
     </None>
+    <None Include="LineShader.frag">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="LineShader.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

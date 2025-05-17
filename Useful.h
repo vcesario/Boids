@@ -5,3 +5,4 @@
 
 std::string ToString(glm::vec3 vector);
 std::string YawPitchToString(float yaw, float pitch);
+void SetArrayBuffer(unsigned int* vao, const void* vData, GLsizeiptr vSize, const void* iData, GLsizeiptr iSize);
