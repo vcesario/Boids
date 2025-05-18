@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "BoidManager.h"
-#include "Useful.h"
 
 namespace BoidManager
 {
@@ -53,6 +52,7 @@ namespace BoidManager
 	glm::vec3 GetAlignmentVelocity(int index);
 	glm::vec3 GetWallAvoidanceVelocity(int index);
 	bool IsWithinBox(glm::vec3 point);
+	void SetArrayBuffer(unsigned int* vao, unsigned int* vbo, const void* vData, GLsizeiptr vSize, const void* iData, GLsizeiptr iSize);
 
 	const double PI = 3.14159265358979323846;
 	const float BOX_WIDTH = 40.0f;
@@ -145,33 +145,14 @@ namespace BoidManager
 		}
 
 		// boid render
-		SetArrayBuffer(&m_BoidVao, m_BoidVertices, sizeof(m_BoidVertices), m_BoidIndices, sizeof(m_BoidIndices));
-
-		//unsigned int boidVbo;
-		//unsigned int boidEbo;
-
-		//glGenVertexArrays(1, &m_BoidVao);
-		//glGenBuffers(1, &boidVbo);
-		//glGenBuffers(1, &boidEbo);
-
-		//glBindVertexArray(m_BoidVao);
-
-		//glBindBuffer(GL_ARRAY_BUFFER, boidVbo);
-		//glBufferData(GL_ARRAY_BUFFER, sizeof(m_BoidVertices), m_BoidVertices, GL_STATIC_DRAW);
-
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, boidEbo);
-		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(m_BoidIndices), m_BoidIndices, GL_STATIC_DRAW);
-
-		//// position attribute
-		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		//glEnableVertexAttribArray(0);
+		SetArrayBuffer(&m_BoidVao, NULL, m_BoidVertices, sizeof(m_BoidVertices), m_BoidIndices, sizeof(m_BoidIndices));
 
 		m_BoidShader = std::make_unique<Shader>("BoidShader.vert", "BoidShader.frag");
 		m_BoidShader->use();
 		m_BoidShader->setMat4("model", glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 
 		// box render
-		SetArrayBuffer(&m_BoxVao, m_BoxVertices, sizeof(m_BoxVertices), m_BoxIndices, sizeof(m_BoxIndices));
+		SetArrayBuffer(&m_BoxVao, NULL, m_BoxVertices, sizeof(m_BoxVertices), m_BoxIndices, sizeof(m_BoxIndices));
 
 		m_BoxShader = std::make_unique<Shader>("BoxShader.vert", "BoxShader.frag");
 
@@ -191,23 +172,8 @@ namespace BoidManager
 			m_LineIndices.push_back(i * 2 + 1);
 		}
 
-		unsigned int ebo;
-
-		glGenVertexArrays(1, &m_LineVao);
-		glGenBuffers(1, &m_LineVbo);
-		glGenBuffers(1, &ebo);
-
-		glBindVertexArray(m_LineVao);
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_LineVbo);
-		glBufferData(GL_ARRAY_BUFFER, m_LineVertices.size() * sizeof(float), m_LineVertices.data(), GL_DYNAMIC_DRAW);
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_LineIndices.size() * sizeof(unsigned int), m_LineIndices.data(), GL_STATIC_DRAW);
-
-		// position attribute
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
+		SetArrayBuffer(&m_LineVao, &m_LineVbo, m_LineVertices.data(), m_LineVertices.size() * sizeof(float),
+			m_LineIndices.data(), m_LineIndices.size() * sizeof(unsigned int));
 
 		m_LineShader = std::make_unique<Shader>("LineShader.vert", "LineShader.frag");
 	}
@@ -495,5 +461,32 @@ namespace BoidManager
 		}
 
 		return bestRay * WallAvoidanceFactor;
+	}
+
+	void SetArrayBuffer(unsigned int* vao, unsigned int* vbo, const void* vData, GLsizeiptr vSize, const void* iData, GLsizeiptr iSize)
+	{
+		unsigned int* _vbo = new unsigned int;
+		unsigned int ebo;
+
+		if (vbo != NULL)
+		{
+			_vbo = vbo;
+		}
+
+		glGenVertexArrays(1, vao);
+		glGenBuffers(1, _vbo);
+		glGenBuffers(1, &ebo);
+
+		glBindVertexArray(*vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, *_vbo);
+		glBufferData(GL_ARRAY_BUFFER, vSize, vData, GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize, iData, GL_STATIC_DRAW);
+
+		// position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
 	}
 }

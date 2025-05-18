@@ -20,14 +20,11 @@ namespace BoidManager
 	extern const float BOX_HALFLENGTH;
 	extern const unsigned int BOID_AMOUNT;
 
-	extern float AngleOfSight;
 	extern float MoveSpeed;
+	extern float AngleOfSight;
 	extern float SightRange;
 	extern float CohesionFactor;
-	//extern float CohesionDistance;
 	extern float SeparationFactor;
-	//extern float SeparationDistance;
 	extern float AlignmentFactor;
-	//extern float AlignmentDistance;
 	extern float WallAvoidanceFactor;
 }
