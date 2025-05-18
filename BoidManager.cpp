@@ -6,6 +6,16 @@
 
 namespace BoidManager
 {
+	const double PI = 3.14159265358979323846;
+	const float BOX_WIDTH = 40.0f;
+	const float BOX_HALFWIDTH = BOX_WIDTH / 2;
+	const float BOX_HEIGHT = 20.0f;
+	const float BOX_HALFHEIGHT = BOX_HEIGHT / 2;
+	const float BOX_LENGTH = 20.0f;
+	const float BOX_HALFLENGTH = BOX_LENGTH / 2;
+	const unsigned int BOID_AMOUNT = 200;
+	const glm::vec3 WORLD_UP(0, 1, 0);
+
 	enum Axis
 	{
 		XAXIS,
@@ -20,7 +30,6 @@ namespace BoidManager
 		glm::vec3 Front;
 		glm::vec3 Right;
 		glm::vec3 Up;
-		glm::vec3 WorldUp;
 
 		Boid(glm::vec3 position, glm::vec3 velocity)
 		{
@@ -28,9 +37,8 @@ namespace BoidManager
 			Velocity = velocity;
 
 			Front = glm::normalize(Velocity);
-			Right = glm::normalize(glm::cross(Front, WorldUp));
+			Right = glm::normalize(glm::cross(Front, WORLD_UP));
 			Up = glm::normalize(glm::cross(Right, Front));
-			WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 		}
 
 		void SetVelocity(glm::vec3 velocity)
@@ -38,7 +46,7 @@ namespace BoidManager
 			Velocity = velocity;
 
 			Front = glm::normalize(velocity);
-			Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+			Right = glm::normalize(glm::cross(Front, WORLD_UP));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
 			Up = glm::normalize(glm::cross(Right, Front));
 		}
 	};
@@ -53,15 +61,6 @@ namespace BoidManager
 	glm::vec3 GetWallAvoidanceVelocity(int index);
 	bool IsWithinBox(glm::vec3 point);
 	void SetArrayBuffer(unsigned int* vao, unsigned int* vbo, const void* vData, GLsizeiptr vSize, const void* iData, GLsizeiptr iSize);
-
-	const double PI = 3.14159265358979323846;
-	const float BOX_WIDTH = 40.0f;
-	const float BOX_HALFWIDTH = BOX_WIDTH / 2;
-	const float BOX_HEIGHT = 20.0f;
-	const float BOX_HALFHEIGHT = BOX_HEIGHT / 2;
-	const float BOX_LENGTH = 20.0f;
-	const float BOX_HALFLENGTH = BOX_LENGTH / 2;
-	const unsigned int BOID_AMOUNT = 200;
 
 	float AngleOfSight = 0.25f;
 	float MoveSpeed = 3.0f;
@@ -216,10 +215,16 @@ namespace BoidManager
 		m_BoidShader->setMat4("projection", projection);
 		m_BoidShader->setMat4("view", view);
 
-		glm::mat4 agentRotScale = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		for (GLubyte i = 0; i < BOID_AMOUNT; i++)
 		{
-			m_BoidShader->setMat4("model", glm::translate(agentRotScale, m_Boids[i].Position));
+			glm::mat4 boidTrans = glm::translate(glm::mat4(1.0f), m_Boids[i].Position);
+			
+			glm::vec3 rotAxis = glm::normalize(glm::cross(WORLD_UP, m_Boids[i].Front));
+			float dot = glm::dot(WORLD_UP, m_Boids[i].Front);
+			float radian = acos(dot);
+			glm::mat4 boidRot = glm::rotate(boidTrans, radian, rotAxis);
+			
+			m_BoidShader->setMat4("model", boidRot);
 			glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0);
 		}
 
@@ -246,7 +251,7 @@ namespace BoidManager
 		m_LineShader->setMat4("view", view);
 		m_LineShader->setMat4("model", glm::mat4(1.0f));
 
-		glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_LINES, /*BOID_AMOUNT * */ 2, GL_UNSIGNED_INT, 0);
 	}
 
 	void ResetBoids()

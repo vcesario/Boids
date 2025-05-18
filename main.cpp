@@ -48,7 +48,7 @@ int main()
 	Input::Init(window);
 	Ui::Init(window);
 
-	Camera camera(glm::vec3(0.0f, 0.0f, 25.0f));
+	Camera camera(glm::vec3(0.0f, 0.0f, 40.0f));
 	CameraController camController(&camera);
 
 	float previousTime = 0;
