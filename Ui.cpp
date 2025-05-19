@@ -5,6 +5,7 @@
 #include "Ui.h"
 #include "Useful.h"
 #include "BoidManager.h"
+#include "Timer.h"
 
 GLFWwindow* m_Window;
 const ImVec2 m_InspectorWindowSize(280, 400);
@@ -42,9 +43,24 @@ void Ui::Render(CameraController& camController)
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_None;
+	static ImGuiWindowFlags fpsFlags = ImGuiWindowFlags_NoInputs
+		| ImGuiWindowFlags_NoTitleBar
+		| ImGuiWindowFlags_NoCollapse
+		//| ImGuiWindowFlags_NoBackground
+		;
+	
+	ImGui::Begin("FPS", NULL, fpsFlags);
+	{
+		static ImVec2 fpsWindowSize(100, 50);
+		static ImVec2 fpsWindowPos(5, 5);
+		ImGui::SetWindowSize(fpsWindowSize, ImGuiCond_Once);
+		ImGui::SetWindowPos(fpsWindowPos, ImGuiCond_Once);
 
-	ImGui::Begin("Inspector", NULL, windowFlags);
+		ImGui::TextDisabled("%.3f", Timer::FPS_STABLE);
+	}
+	ImGui::End();
+
+	ImGui::Begin("Inspector");
 	{
 		ImGui::SetWindowSize(m_InspectorWindowSize, ImGuiCond_Once);
 		ImGui::SetWindowPos(m_InspectorWindowPos, ImGuiCond_Once);

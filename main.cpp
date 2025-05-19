@@ -4,7 +4,7 @@
 
 #include "imgui/imgui.h"
 
-#include "Globals.h"
+#include "Timer.h"
 #include "Ui.h"
 #include "BoidManager.h"
 #include "Input.h"
@@ -13,8 +13,6 @@
 
 const unsigned int SCR_WIDTH = 1920 / 2;
 const unsigned int SCR_HEIGHT = 1080 / 2;
-
-unsigned int Globals::FRAME_COUNT;
 
 int main()
 {
@@ -43,23 +41,19 @@ int main()
 	}
 
 	glEnable(GL_DEPTH_TEST);
+	glfwSwapInterval(0); // vsync
 
+	Timer::Init();
 	BoidManager::Init(SCR_WIDTH, SCR_HEIGHT);
 	Input::Init(window);
 	Ui::Init(window);
 
 	Camera camera(glm::vec3(0.0f, 0.0f, 40.0f));
 	CameraController camController(&camera);
-
-	float previousTime = 0;
-	float currentTime = 0;
-	Globals::FRAME_COUNT = -1;
+	
 	while (!glfwWindowShouldClose(window))
 	{
-		Globals::FRAME_COUNT++;
-		previousTime = currentTime;
-		currentTime = glfwGetTime();
-		float deltaTime = currentTime - previousTime;
+		Timer::NewFrame();
 
 		Input::Update();
 
@@ -69,8 +63,8 @@ int main()
 			continue;
 		}
 
-		camController.Update(deltaTime);
-		BoidManager::Update(deltaTime);
+		camController.Update();
+		BoidManager::Update();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

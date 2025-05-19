@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "BoidManager.h"
+#include "Timer.h"
 
 namespace BoidManager
 {
@@ -177,7 +178,7 @@ namespace BoidManager
 		m_LineShader = std::make_unique<Shader>("LineShader.vert", "LineShader.frag");
 	}
 
-	void Update(float deltaTime)
+	void Update()
 	{
 		for (size_t i = 0; i < BOID_AMOUNT; i++)
 		{
@@ -189,7 +190,7 @@ namespace BoidManager
 
 			m_Boids[i].SetVelocity(glm::normalize(m_Boids[i].Velocity + velocity) * MoveSpeed);
 
-			m_Boids[i].Position += m_Boids[i].Velocity * deltaTime;
+			m_Boids[i].Position += m_Boids[i].Velocity * Timer::DELTA_TIME;
 			//m_Boids[i].Position = WrapPositionToBox(m_Boids[i].Position);
 
 			// update line vertices

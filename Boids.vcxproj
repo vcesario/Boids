@@ -144,6 +144,7 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Ui.cpp" />
     <ClCompile Include="Useful.cpp" />
   </ItemGroup>
@@ -151,7 +152,7 @@
     <ClInclude Include="BoidManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraController.h" />
-    <ClInclude Include="Globals.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw.h" />

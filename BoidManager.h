@@ -8,7 +8,7 @@
 namespace BoidManager
 {
 	void Init(int screenWidth, int screenHeight);
-	void Update(float deltaTime);
+	void Update();
 	void Render(Camera camera);
 	void ResetBoids();
 

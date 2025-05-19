@@ -1,6 +1,7 @@
 #include "CameraController.h"
 #include "Input.h"
 #include "Ui.h"
+#include "Timer.h"
 
 CameraController::CameraController(Camera* camera)
 {
@@ -17,7 +18,7 @@ CameraController::CameraController(Camera* camera)
 	m_RotateAttenuation = 0.92f;
 }
 
-void CameraController::Update(float deltaTime)
+void CameraController::Update()
 {
 	if (Input::IsActionDown(Input::LEFTDRAG) && !Ui::IsHovered())
 	{
@@ -57,22 +58,22 @@ void CameraController::Update(float deltaTime)
 	if (Input::IsActionActive(Input::FORWARD))
 	{
 		m_IsResettingFocalPoint = false;
-		Move(FORWARD, deltaTime);
+		Move(FORWARD);
 	}
 	else if (Input::IsActionActive(Input::BACKWARD))
 	{
 		m_IsResettingFocalPoint = false;
-		Move(BACKWARD, deltaTime);
+		Move(BACKWARD);
 	}
 	if (Input::IsActionActive(Input::PANLEFT))
 	{
 		m_IsResettingFocalPoint = false;
-		Move(LEFT, deltaTime);
+		Move(LEFT);
 	}
 	else if (Input::IsActionActive(Input::PANRIGHT))
 	{
 		m_IsResettingFocalPoint = false;
-		Move(RIGHT, deltaTime);
+		Move(RIGHT);
 	}
 
 	if (m_IsResettingFocalPoint)
@@ -139,9 +140,9 @@ void CameraController::RotateAroundFocalPoint(float xOffset, float yOffset)
 	MasterCam->updateCameraVectors_Front();
 }
 
-void CameraController::Move(Camera_Movement direction, float deltaTime)
+void CameraController::Move(Camera_Movement direction)
 {
-	float velocity = MovementSpeed * deltaTime;
+	float velocity = MovementSpeed * Timer::DELTA_TIME;
 	if (direction == FORWARD)
 	{
 		glm::vec3 step = MasterCam->Front * velocity;

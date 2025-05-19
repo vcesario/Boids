@@ -63,6 +63,9 @@
     <ClCompile Include="BoidManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
@@ -101,7 +104,7 @@
     <ClInclude Include="CameraController.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Globals.h">
+    <ClInclude Include="Timer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">

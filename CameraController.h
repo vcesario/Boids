@@ -18,7 +18,7 @@ public:
 	Camera* MasterCam;
 
 	CameraController(Camera* camera);
-	void Update(float deltaTime);
+	void Update();
 
 private:
 	glm::vec3 m_FocalPoint;
@@ -29,7 +29,7 @@ private:
 
 	void Pan(float xOffset, float yOffset);
 	void RotateAroundFocalPoint(float xOffset, float yOffset);
-	void Move(Camera_Movement direction, float deltaTime);
+	void Move(Camera_Movement direction);
 	void Zoom(float yOffset);
 	void SetFocalPoint(glm::vec3 newPoint);
 	void SetSmoothDiff(float xOffset, float yOffset);

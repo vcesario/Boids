@@ -2,7 +2,7 @@
 #include <unordered_map>
 
 #include "Input.h"
-#include "Globals.h"
+#include "Timer.h"
 
 namespace Input
 {
@@ -51,12 +51,12 @@ namespace Input
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[EXIT] = Globals::FRAME_COUNT;
+				m_ActiveActions[EXIT] = Timer::FRAME_COUNT;
 			}
 			else if (action == GLFW_RELEASE)
 			{
 				//m_ActiveActions.erase(EXIT);
-				m_InactiveActions[EXIT] = Globals::FRAME_COUNT;
+				m_InactiveActions[EXIT] = Timer::FRAME_COUNT;
 			}
 		}
 
@@ -64,24 +64,24 @@ namespace Input
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[FORWARD] = Globals::FRAME_COUNT;
+				m_ActiveActions[FORWARD] = Timer::FRAME_COUNT;
 			}
 			else if (action == GLFW_RELEASE)
 			{
 				//m_ActiveActions.erase(FORWARD);
-				m_InactiveActions[FORWARD] = Globals::FRAME_COUNT;
+				m_InactiveActions[FORWARD] = Timer::FRAME_COUNT;
 			}
 		}
 		else if (key == GLFW_KEY_S)
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[BACKWARD] = Globals::FRAME_COUNT;
+				m_ActiveActions[BACKWARD] = Timer::FRAME_COUNT;
 			}
 			else if (action == GLFW_RELEASE)
 			{
 				//m_ActiveActions.erase(BACKWARD);
-				m_InactiveActions[BACKWARD] = Globals::FRAME_COUNT;
+				m_InactiveActions[BACKWARD] = Timer::FRAME_COUNT;
 			}
 		}
 
@@ -89,24 +89,24 @@ namespace Input
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[PANLEFT] = Globals::FRAME_COUNT;
+				m_ActiveActions[PANLEFT] = Timer::FRAME_COUNT;
 			}
 			else if (action == GLFW_RELEASE)
 			{
 				//m_ActiveActions.erase(PANLEFT);
-				m_InactiveActions[PANLEFT] = Globals::FRAME_COUNT;
+				m_InactiveActions[PANLEFT] = Timer::FRAME_COUNT;
 			}
 		}
 		else if (key == GLFW_KEY_D)
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[PANRIGHT] = Globals::FRAME_COUNT;
+				m_ActiveActions[PANRIGHT] = Timer::FRAME_COUNT;
 			}
 			else if (action == GLFW_RELEASE)
 			{
 				//m_ActiveActions.erase(PANRIGHT);
-				m_InactiveActions[PANRIGHT] = Globals::FRAME_COUNT;
+				m_InactiveActions[PANRIGHT] = Timer::FRAME_COUNT;
 			}
 		}
 	}
@@ -117,7 +117,7 @@ namespace Input
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[LEFTDRAG] = Globals::FRAME_COUNT;
+				m_ActiveActions[LEFTDRAG] = Timer::FRAME_COUNT;
 
 				glfwGetCursorPos(window, &m_XCurrent, &m_YCurrent);
 				m_XPrevious = m_XCurrent;
@@ -125,7 +125,7 @@ namespace Input
 			}
 			if (action == GLFW_RELEASE)
 			{
-				m_InactiveActions[LEFTDRAG] = Globals::FRAME_COUNT;
+				m_InactiveActions[LEFTDRAG] = Timer::FRAME_COUNT;
 				//m_ActiveActions.erase(LEFTDRAG);
 			}
 		}
@@ -133,7 +133,7 @@ namespace Input
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[RIGHTDRAG] = Globals::FRAME_COUNT;
+				m_ActiveActions[RIGHTDRAG] = Timer::FRAME_COUNT;
 
 				glfwGetCursorPos(window, &m_XCurrent, &m_YCurrent);
 				m_XPrevious = m_XCurrent;
@@ -141,7 +141,7 @@ namespace Input
 			}
 			if (action == GLFW_RELEASE)
 			{
-				m_InactiveActions[RIGHTDRAG] = Globals::FRAME_COUNT;
+				m_InactiveActions[RIGHTDRAG] = Timer::FRAME_COUNT;
 				//m_ActiveActions.erase(RIGHTDRAG);
 			}
 		}
@@ -149,11 +149,11 @@ namespace Input
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[RESETFOCUS] = Globals::FRAME_COUNT;
+				m_ActiveActions[RESETFOCUS] = Timer::FRAME_COUNT;
 			}
 			if (action == GLFW_RELEASE)
 			{
-				m_InactiveActions[RESETFOCUS] = Globals::FRAME_COUNT;
+				m_InactiveActions[RESETFOCUS] = Timer::FRAME_COUNT;
 				//m_ActiveActions.erase(RESETFOCUS);
 			}
 		}
@@ -161,8 +161,8 @@ namespace Input
 
 	void HandleMouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	{
-		m_ActiveActions[ZOOM] = Globals::FRAME_COUNT;
-		m_InactiveActions[ZOOM] = Globals::FRAME_COUNT;
+		m_ActiveActions[ZOOM] = Timer::FRAME_COUNT;
+		m_InactiveActions[ZOOM] = Timer::FRAME_COUNT;
 		ScrollYDiff = yoffset;
 	}
 
@@ -191,7 +191,7 @@ namespace Input
 		{
 			return false;
 		}
-		return (frame->second + 1) == Globals::FRAME_COUNT;
+		return (frame->second + 1) == Timer::FRAME_COUNT;
 	}
 
 	bool IsActionUp(Input_Action action)
@@ -201,6 +201,6 @@ namespace Input
 		{
 			return false;
 		}
-		return (frame->second + 1) == Globals::FRAME_COUNT;
+		return (frame->second + 1) == Timer::FRAME_COUNT;
 	}
 }
