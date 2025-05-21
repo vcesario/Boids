@@ -51,12 +51,12 @@ namespace Input
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[EXIT] = Timer::FRAME_COUNT;
+				m_ActiveActions[EXIT] = Timer::FrameCount;
 			}
 			else if (action == GLFW_RELEASE)
 			{
 				//m_ActiveActions.erase(EXIT);
-				m_InactiveActions[EXIT] = Timer::FRAME_COUNT;
+				m_InactiveActions[EXIT] = Timer::FrameCount;
 			}
 		}
 
@@ -64,24 +64,24 @@ namespace Input
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[FORWARD] = Timer::FRAME_COUNT;
+				m_ActiveActions[FORWARD] = Timer::FrameCount;
 			}
 			else if (action == GLFW_RELEASE)
 			{
 				//m_ActiveActions.erase(FORWARD);
-				m_InactiveActions[FORWARD] = Timer::FRAME_COUNT;
+				m_InactiveActions[FORWARD] = Timer::FrameCount;
 			}
 		}
 		else if (key == GLFW_KEY_S)
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[BACKWARD] = Timer::FRAME_COUNT;
+				m_ActiveActions[BACKWARD] = Timer::FrameCount;
 			}
 			else if (action == GLFW_RELEASE)
 			{
 				//m_ActiveActions.erase(BACKWARD);
-				m_InactiveActions[BACKWARD] = Timer::FRAME_COUNT;
+				m_InactiveActions[BACKWARD] = Timer::FrameCount;
 			}
 		}
 
@@ -89,24 +89,24 @@ namespace Input
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[PANLEFT] = Timer::FRAME_COUNT;
+				m_ActiveActions[PANLEFT] = Timer::FrameCount;
 			}
 			else if (action == GLFW_RELEASE)
 			{
 				//m_ActiveActions.erase(PANLEFT);
-				m_InactiveActions[PANLEFT] = Timer::FRAME_COUNT;
+				m_InactiveActions[PANLEFT] = Timer::FrameCount;
 			}
 		}
 		else if (key == GLFW_KEY_D)
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[PANRIGHT] = Timer::FRAME_COUNT;
+				m_ActiveActions[PANRIGHT] = Timer::FrameCount;
 			}
 			else if (action == GLFW_RELEASE)
 			{
 				//m_ActiveActions.erase(PANRIGHT);
-				m_InactiveActions[PANRIGHT] = Timer::FRAME_COUNT;
+				m_InactiveActions[PANRIGHT] = Timer::FrameCount;
 			}
 		}
 	}
@@ -117,7 +117,7 @@ namespace Input
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[LEFTDRAG] = Timer::FRAME_COUNT;
+				m_ActiveActions[LEFTDRAG] = Timer::FrameCount;
 
 				glfwGetCursorPos(window, &m_XCurrent, &m_YCurrent);
 				m_XPrevious = m_XCurrent;
@@ -125,7 +125,7 @@ namespace Input
 			}
 			if (action == GLFW_RELEASE)
 			{
-				m_InactiveActions[LEFTDRAG] = Timer::FRAME_COUNT;
+				m_InactiveActions[LEFTDRAG] = Timer::FrameCount;
 				//m_ActiveActions.erase(LEFTDRAG);
 			}
 		}
@@ -133,7 +133,7 @@ namespace Input
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[RIGHTDRAG] = Timer::FRAME_COUNT;
+				m_ActiveActions[RIGHTDRAG] = Timer::FrameCount;
 
 				glfwGetCursorPos(window, &m_XCurrent, &m_YCurrent);
 				m_XPrevious = m_XCurrent;
@@ -141,7 +141,7 @@ namespace Input
 			}
 			if (action == GLFW_RELEASE)
 			{
-				m_InactiveActions[RIGHTDRAG] = Timer::FRAME_COUNT;
+				m_InactiveActions[RIGHTDRAG] = Timer::FrameCount;
 				//m_ActiveActions.erase(RIGHTDRAG);
 			}
 		}
@@ -149,11 +149,11 @@ namespace Input
 		{
 			if (action == GLFW_PRESS)
 			{
-				m_ActiveActions[RESETFOCUS] = Timer::FRAME_COUNT;
+				m_ActiveActions[RESETFOCUS] = Timer::FrameCount;
 			}
 			if (action == GLFW_RELEASE)
 			{
-				m_InactiveActions[RESETFOCUS] = Timer::FRAME_COUNT;
+				m_InactiveActions[RESETFOCUS] = Timer::FrameCount;
 				//m_ActiveActions.erase(RESETFOCUS);
 			}
 		}
@@ -161,8 +161,8 @@ namespace Input
 
 	void HandleMouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	{
-		m_ActiveActions[ZOOM] = Timer::FRAME_COUNT;
-		m_InactiveActions[ZOOM] = Timer::FRAME_COUNT;
+		m_ActiveActions[ZOOM] = Timer::FrameCount;
+		m_InactiveActions[ZOOM] = Timer::FrameCount;
 		ScrollYDiff = yoffset;
 	}
 
@@ -191,7 +191,7 @@ namespace Input
 		{
 			return false;
 		}
-		return (frame->second + 1) == Timer::FRAME_COUNT;
+		return (frame->second + 1) == Timer::FrameCount;
 	}
 
 	bool IsActionUp(Input_Action action)
@@ -201,6 +201,6 @@ namespace Input
 		{
 			return false;
 		}
-		return (frame->second + 1) == Timer::FRAME_COUNT;
+		return (frame->second + 1) == Timer::FrameCount;
 	}
 }

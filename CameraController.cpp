@@ -142,7 +142,7 @@ void CameraController::RotateAroundFocalPoint(float xOffset, float yOffset)
 
 void CameraController::Move(Camera_Movement direction)
 {
-	float velocity = MovementSpeed * Timer::DELTA_TIME;
+	float velocity = MovementSpeed * Timer::DeltaTime;
 	if (direction == FORWARD)
 	{
 		glm::vec3 step = MasterCam->Front * velocity;

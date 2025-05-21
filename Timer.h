@@ -2,10 +2,10 @@
 
 namespace Timer
 {
-	extern unsigned int FRAME_COUNT;
-	extern float DELTA_TIME;
-	extern float FPS_RAW;
-	extern unsigned int FPS_STABLE;
+	extern unsigned long long FrameCount;
+	extern float DeltaTime;
+	extern float FpsRaw;
+	extern unsigned int FpsStable;
 
 	void Init();
 	void NewFrame();

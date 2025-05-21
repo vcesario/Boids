@@ -190,7 +190,7 @@ namespace BoidManager
 
 			m_Boids[i].SetVelocity(glm::normalize(m_Boids[i].Velocity + velocity) * MoveSpeed);
 
-			m_Boids[i].Position += m_Boids[i].Velocity * Timer::DELTA_TIME;
+			m_Boids[i].Position += m_Boids[i].Velocity * Timer::DeltaTime;
 			//m_Boids[i].Position = WrapPositionToBox(m_Boids[i].Position);
 
 			// update line vertices

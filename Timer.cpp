@@ -4,48 +4,45 @@
 
 namespace Timer
 {
-	const unsigned int FPS_ARRAY_SIZE = 1000;
+	const unsigned int FPS_SUM_SPAN_SIZE = 1000;
 
-	unsigned int FRAME_COUNT;
-	float DELTA_TIME;
-	float FPS_RAW;
-	unsigned int FPS_STABLE;
+	unsigned long long FrameCount;
+	float DeltaTime;
+	float FpsRaw;
+	unsigned int FpsStable;
 
-	float previousTime;
-	float currentTime;
-	float fpsArray[FPS_ARRAY_SIZE];
+	float m_PreviousTime;
+	float m_CurrentTime;
+	float m_FpsSum;
+	float m_PreviousFpsRaw;
 
 	void Init()
 	{
-		previousTime = 0;
-		currentTime = 0;
+		m_PreviousTime = 0;
+		m_CurrentTime = 0;
 
-		FRAME_COUNT = -1;
-		DELTA_TIME = 0;
-		FPS_RAW = 0;
+		FrameCount = -1;
+		DeltaTime = 0;
+		FpsRaw = 0;
+		FpsStable = 0;
 	}
 
 	void NewFrame()
 	{
-		FRAME_COUNT++;
-		previousTime = currentTime;
-		currentTime = glfwGetTime();
-		DELTA_TIME = currentTime - previousTime;
-		FPS_RAW = 1.0f / DELTA_TIME;
+		FrameCount++;
+		m_PreviousTime = m_CurrentTime;
+		m_CurrentTime = glfwGetTime();
+		DeltaTime = m_CurrentTime - m_PreviousTime;
+		m_PreviousFpsRaw = FpsRaw;
+		FpsRaw = 1.0f / DeltaTime;
 
-		int fpsArrayIndex = FRAME_COUNT % FPS_ARRAY_SIZE;
-		fpsArray[fpsArrayIndex] = FPS_RAW;
-
-		float avgArray = 0;
-		unsigned int maxSize = FRAME_COUNT > FPS_ARRAY_SIZE ? FPS_ARRAY_SIZE : FRAME_COUNT;
-		for (size_t i = 0; i < maxSize; i++)
+		float arraySize = FrameCount;
+		if (FrameCount > FPS_SUM_SPAN_SIZE)
 		{
-			avgArray += fpsArray[i];
+			m_FpsSum -= m_PreviousFpsRaw;
+			arraySize = FPS_SUM_SPAN_SIZE;
 		}
-		avgArray /= maxSize;
-
-		FPS_STABLE = avgArray;
-
-		// TODO: this is improvable, by keeping a global ArraySum instead of running a for loop every frame.
+		m_FpsSum += FpsRaw;
+		FpsStable = m_FpsSum / arraySize;
 	}
 }

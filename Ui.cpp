@@ -56,11 +56,11 @@ void Ui::Render(CameraController& camController)
 		ImGui::SetWindowSize(fpsWindowSize, ImGuiCond_Once);
 		ImGui::SetWindowPos(fpsWindowPos, ImGuiCond_Once);
 
-		ImGui::TextDisabled("%d", Timer::FPS_STABLE);
+		ImGui::TextDisabled("%d", Timer::FpsStable);
 	}
 	ImGui::End();
 
-	ImGui::ShowDemoWindow();
+	//ImGui::ShowDemoWindow();
 
 	ImGui::Begin("Inspector");
 	{
