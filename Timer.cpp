@@ -4,12 +4,12 @@
 
 namespace Timer
 {
-	const unsigned int FPS_ARRAY_SIZE = 100;
+	const unsigned int FPS_ARRAY_SIZE = 1000;
 
 	unsigned int FRAME_COUNT;
 	float DELTA_TIME;
 	float FPS_RAW;
-	float FPS_STABLE;
+	unsigned int FPS_STABLE;
 
 	float previousTime;
 	float currentTime;
@@ -33,24 +33,19 @@ namespace Timer
 		DELTA_TIME = currentTime - previousTime;
 		FPS_RAW = 1.0f / DELTA_TIME;
 
-
 		int fpsArrayIndex = FRAME_COUNT % FPS_ARRAY_SIZE;
 		fpsArray[fpsArrayIndex] = FPS_RAW;
 
 		float avgArray = 0;
-		for (size_t i = 0; i < FPS_ARRAY_SIZE && i < FRAME_COUNT; i++)
+		unsigned int maxSize = FRAME_COUNT > FPS_ARRAY_SIZE ? FPS_ARRAY_SIZE : FRAME_COUNT;
+		for (size_t i = 0; i < maxSize; i++)
 		{
 			avgArray += fpsArray[i];
 		}
-		if (FRAME_COUNT < FPS_ARRAY_SIZE)
-		{
-			avgArray /= FRAME_COUNT;
-		}
-		else
-		{
-			avgArray /= FPS_ARRAY_SIZE;
-		}
+		avgArray /= maxSize;
 
 		FPS_STABLE = avgArray;
+
+		// TODO: this is improvable, by keeping a global ArraySum instead of running a for loop every frame.
 	}
 }

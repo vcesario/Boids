@@ -46,7 +46,7 @@ void Ui::Render(CameraController& camController)
 	static ImGuiWindowFlags fpsFlags = ImGuiWindowFlags_NoInputs
 		| ImGuiWindowFlags_NoTitleBar
 		| ImGuiWindowFlags_NoCollapse
-		//| ImGuiWindowFlags_NoBackground
+		| ImGuiWindowFlags_NoBackground
 		;
 	
 	ImGui::Begin("FPS", NULL, fpsFlags);
@@ -56,9 +56,11 @@ void Ui::Render(CameraController& camController)
 		ImGui::SetWindowSize(fpsWindowSize, ImGuiCond_Once);
 		ImGui::SetWindowPos(fpsWindowPos, ImGuiCond_Once);
 
-		ImGui::TextDisabled("%.3f", Timer::FPS_STABLE);
+		ImGui::TextDisabled("%d", Timer::FPS_STABLE);
 	}
 	ImGui::End();
+
+	ImGui::ShowDemoWindow();
 
 	ImGui::Begin("Inspector");
 	{
