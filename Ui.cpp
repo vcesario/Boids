@@ -86,7 +86,7 @@ void Ui::Render(CameraController& camController)
 			ImGui::DragFloat("Cohesion Factor", &BoidManager::CohesionFactor, 0.005f, 0, 10);
 			ImGui::DragFloat("Separation Factor", &BoidManager::SeparationFactor, 0.005f, 0, 10);
 			ImGui::DragFloat("Alignment Factor", &BoidManager::AlignmentFactor, 0.005f, 0, 10);
-			ImGui::SliderFloat("Wall Avoidance Factor", &BoidManager::WallAvoidanceFactor, 0, 50);
+			ImGui::SliderFloat("Wall Avoidance Factor", &BoidManager::WallAvoidanceFactor, 0, 2);
 		}
 
 		if (ImGui::Button("Load values"))

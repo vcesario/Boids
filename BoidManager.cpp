@@ -59,17 +59,17 @@ namespace BoidManager
 	glm::vec3 GetCohesionVelocity(int index);
 	glm::vec3 GetSeparationVelocity(int index);
 	glm::vec3 GetAlignmentVelocity(int index);
-	glm::vec3 GetWallAvoidanceVelocity(int index);
+	glm::vec3 GetWallAvoidanceVelocity(int index, glm::vec3 vec, float length);
 	bool IsWithinBox(glm::vec3 point);
 	void SetArrayBuffer(unsigned int* vao, unsigned int* vbo, const void* vData, GLsizeiptr vSize, const void* iData, GLsizeiptr iSize);
 
 	float AngleOfSight = 0.25f;
 	float MoveSpeed = 3.0f;
 	float SightRange = 5;
-	float CohesionFactor = 0.01f;
+	float CohesionFactor = 0.1f;
 	float AlignmentFactor = 0.125f;
-	float SeparationFactor = 0.015;
-	float WallAvoidanceFactor = 30.0f;
+	float SeparationFactor = 0.15;
+	float WallAvoidanceFactor = 0.2f;
 
 	float m_BoxVertices[] = {
 		-1.0f, -1.0f, -1.0f, // 0 - left bottom back
@@ -183,15 +183,21 @@ namespace BoidManager
 		for (size_t i = 0; i < BOID_AMOUNT; i++)
 		{
 			glm::vec3 velocity = glm::vec3(0);
-			velocity += GetCohesionVelocity(i);
-			velocity += GetSeparationVelocity(i);
-			velocity += GetAlignmentVelocity(i);
-			velocity += GetWallAvoidanceVelocity(i);
 
-			m_Boids[i].SetVelocity(glm::normalize(m_Boids[i].Velocity + velocity) * MoveSpeed);
+			velocity += GetCohesionVelocity(i) * CohesionFactor;
+			velocity += GetSeparationVelocity(i) * SeparationFactor;
+			velocity += GetAlignmentVelocity(i) * AlignmentFactor;
+
+			velocity += m_Boids[i].Velocity;
+
+			float cappedLength = fminf(glm::length(velocity), MoveSpeed);
+			velocity = cappedLength == 0 ? glm::vec3(0) : glm::normalize(velocity) * cappedLength;
+
+			velocity += GetWallAvoidanceVelocity(i, velocity, cappedLength) * WallAvoidanceFactor;
+
+			m_Boids[i].SetVelocity(velocity);
 
 			m_Boids[i].Position += m_Boids[i].Velocity * Timer::DeltaTime;
-			//m_Boids[i].Position = WrapPositionToBox(m_Boids[i].Position);
 
 			// update line vertices
 			glm::vec3 direction = m_Boids[i].Velocity * 1.0f;
@@ -219,12 +225,12 @@ namespace BoidManager
 		for (GLubyte i = 0; i < BOID_AMOUNT; i++)
 		{
 			glm::mat4 boidTrans = glm::translate(glm::mat4(1.0f), m_Boids[i].Position);
-			
+
 			glm::vec3 rotAxis = glm::normalize(glm::cross(WORLD_UP, m_Boids[i].Front));
 			float dot = glm::dot(WORLD_UP, m_Boids[i].Front);
 			float radian = acos(dot);
 			glm::mat4 boidRot = glm::rotate(boidTrans, radian, rotAxis);
-			
+
 			m_BoidShader->setMat4("model", boidRot);
 			glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0);
 		}
@@ -252,7 +258,7 @@ namespace BoidManager
 		m_LineShader->setMat4("view", view);
 		m_LineShader->setMat4("model", glm::mat4(1.0f));
 
-		glDrawElements(GL_LINES, /*BOID_AMOUNT * */ 2, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
 	}
 
 	void ResetBoids()
@@ -309,6 +315,7 @@ namespace BoidManager
 		float randomZ = WrapValueToBox(rand(), ZAXIS);
 		return glm::vec3(randomX, randomY, randomZ);
 	}
+
 	glm::vec3 GetRandomStartingVelocity()
 	{
 		float randomX = rand() - ((float)RAND_MAX / 2);
@@ -351,13 +358,18 @@ namespace BoidManager
 
 		pseudoCenter /= groupAmount;
 
-		glm::vec3 resultVelocity = (pseudoCenter - m_Boids[index].Position) * CohesionFactor;
-		return resultVelocity;
+		glm::vec3 velocity = pseudoCenter - m_Boids[index].Position;
+		if (glm::length(velocity) == 0)
+		{
+			return glm::vec3(0);
+		}
+		return glm::normalize(velocity);
 	}
 
 	glm::vec3 GetSeparationVelocity(int index)
 	{
 		glm::vec3 velocity(0);
+		int groupAmount = 0;
 		for (size_t i = 0; i < BOID_AMOUNT; i++)
 		{
 			if (i == index)
@@ -378,11 +390,21 @@ namespace BoidManager
 				continue;
 			}
 
+			groupAmount++;
 			float influence = 1 - length / SightRange;
 			velocity -= distance * influence;
 		}
 
-		return velocity * SeparationFactor;
+		if (groupAmount == 0)
+		{
+			return glm::vec3(0);
+		}
+
+		if (glm::length(velocity) == 0)
+		{
+			return glm::vec3(0);
+		}
+		return glm::normalize(velocity);
 	}
 
 	glm::vec3 GetAlignmentVelocity(int index)
@@ -419,28 +441,29 @@ namespace BoidManager
 
 		velocityAvg /= groupAmount;
 
-		glm::vec3 resultVelocity = velocityAvg * AlignmentFactor;
-		return resultVelocity;
+		if (glm::length(velocityAvg) == 0)
+		{
+			return glm::vec3(0);
+		}
+		return glm::normalize(velocityAvg);
 	}
 
-	glm::vec3 GetWallAvoidanceVelocity(int index)
+	glm::vec3 GetWallAvoidanceVelocity(int index, glm::vec3 vec, float length)
 	{
 		glm::vec3 pos = m_Boids[index].Position;
-		glm::vec3 front = m_Boids[index].Front;
 
-		float rayLength = 3;
-		glm::vec3 frontPoint = pos + front * rayLength;
+		glm::vec3 frontPoint = pos + vec;
 
 		if (IsWithinBox(frontPoint))
 		{
-			return glm::vec3(0);
+			return vec;
 		}
 
 		int maxPoints = 30;
 		float turnFraction = 0.1f;
 
 		float bestDot = -1;
-		glm::vec3 bestRay = -front;
+		glm::vec3 bestRay = -vec;
 
 		for (size_t i = 0; i < maxPoints; i++)
 		{
@@ -450,14 +473,14 @@ namespace BoidManager
 			float azimuthalFactor = 2 * PI * turnFraction * i;
 
 			glm::vec3 ray(
-				rayLength * sin(polarFactor) * cos(azimuthalFactor),
-				rayLength * cos(polarFactor),
-				rayLength * sin(polarFactor) * sin(azimuthalFactor)
+				length * sin(polarFactor) * cos(azimuthalFactor),
+				length * cos(polarFactor),
+				length * sin(polarFactor) * sin(azimuthalFactor)
 			);
 
 			if (IsWithinBox(pos + ray))
 			{
-				float dot = glm::dot(front, ray);
+				float dot = glm::dot(vec, ray);
 				if (dot > bestDot)
 				{
 					bestDot = dot;
@@ -466,7 +489,7 @@ namespace BoidManager
 			}
 		}
 
-		return bestRay * WallAvoidanceFactor;
+		return bestRay;
 	}
 
 	void SetArrayBuffer(unsigned int* vao, unsigned int* vbo, const void* vData, GLsizeiptr vSize, const void* iData, GLsizeiptr iSize)
