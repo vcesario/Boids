@@ -52,6 +52,39 @@ namespace BoidManager
 		}
 	};
 
+	struct Light
+	{
+		float Yaw;
+		float Pitch;
+		glm::vec3 Color;
+		float Intensity;
+		glm::vec3 Direction;
+
+		Light()
+		{
+			Yaw = 0;
+			Pitch = 0;
+			Color = glm::vec3();
+			Intensity = 0;
+			Direction = glm::vec3();
+		}
+
+		Light(float yaw, float pitch, glm::vec3 color, float intensity)
+		{
+			Yaw = yaw;
+			Pitch = pitch;
+			Color = color;
+			Intensity = intensity;
+
+			UpdateDirection();
+		}
+
+		void UpdateDirection()
+		{
+			Direction = glm::vec3(0.0f, -1.0f, 0.0f);
+		}
+	};
+
 	glm::vec3 WrapPositionToBox(glm::vec3 position);
 	float WrapValueToBox(float value, Axis axis);
 	glm::vec3 GetRandomStartingPosition();
@@ -100,25 +133,43 @@ namespace BoidManager
 	};
 
 	float m_BoidVertices[] = {
-		// Tip of the cone
-		 0.0f, 1.0f,  0.0f,   // Vertex 0: tip
+		// Side face 1 (tip, back-left, back-right)
+		 0.0f, 1.0f,  0.0f,   0.0f, 0.7071f, -0.7071f,
+		-0.5f, 0.0f, -0.5f,   0.0f, 0.7071f, -0.7071f,
+		 0.5f, 0.0f, -0.5f,   0.0f, 0.7071f, -0.7071f,
 
-		 // Base vertices (square)
-		 -0.5f, 0.0f, -0.5f,   // Vertex 1: back-left
-		  0.5f, 0.0f, -0.5f,   // Vertex 2: back-right
-		  0.5f, 0.0f,  0.5f,   // Vertex 3: front-right
-		 -0.5f, 0.0f,  0.5f    // Vertex 4: front-left
+		// Side face 2 (tip, back-right, front-right)
+		0.0f, 1.0f,  0.0f,   0.7071f, 0.7071f, 0.0f,
+		0.5f, 0.0f, -0.5f,   0.7071f, 0.7071f, 0.0f,
+		0.5f, 0.0f,  0.5f,   0.7071f, 0.7071f, 0.0f,
+
+		// Side face 3 (tip, front-right, front-left)
+		 0.0f, 1.0f,  0.0f,   0.0f, 0.7071f, 0.7071f,
+		 0.5f, 0.0f,  0.5f,   0.0f, 0.7071f, 0.7071f,
+		-0.5f, 0.0f,  0.5f,   0.0f, 0.7071f, 0.7071f,
+
+		// Side face 4 (tip, front-left, back-left)
+		 0.0f, 1.0f,  0.0f,  -0.7071f, 0.7071f, 0.0f,
+		-0.5f, 0.0f,  0.5f,  -0.7071f, 0.7071f, 0.0f,
+		-0.5f, 0.0f, -0.5f,  -0.7071f, 0.7071f, 0.0f,
+
+		// Base face 1 (back-left, back-right, front-right)
+		-0.5f, 0.0f, -0.5f,   0.0f, -1.0f, 0.0f,
+		 0.5f, 0.0f, -0.5f,   0.0f, -1.0f, 0.0f,
+		 0.5f, 0.0f,  0.5f,   0.0f, -1.0f, 0.0f,
+
+		// Base face 2 (back-left, front-right, front-left)
+		-0.5f, 0.0f, -0.5f,   0.0f, -1.0f, 0.0f,
+		 0.5f, 0.0f,  0.5f,   0.0f, -1.0f, 0.0f,
+		-0.5f, 0.0f,  0.5f,   0.0f, -1.0f, 0.0f,
 	};
 	unsigned int m_BoidIndices[] = {
-		// Side triangles (tip to base)
-		0, 1, 2,   // Tip to back-left and back-right
-		0, 2, 3,   // Tip to back-right and front-right
-		0, 3, 4,   // Tip to front-right and front-left
-		0, 4, 1,   // Tip to front-left and back-left
-
-		// Base (two triangles)
-		1, 2, 3,   // Base triangle 1
-		1, 3, 4    // Base triangle 2
+		 0,  1,  2,   // Side 1
+		 3,  4,  5,   // Side 2
+		 6,  7,  8,   // Side 3
+		 9, 10, 11,   // Side 4
+		12, 13, 14,   // Base 1
+		15, 16, 17    // Base 2
 	};
 
 	std::vector<float> m_LineVertices;
@@ -128,6 +179,7 @@ namespace BoidManager
 	std::unique_ptr<Shader> m_BoidShader, m_BoxShader, m_LineShader;
 	float m_ScrWidth, m_ScrHeight, m_Aspect;
 	std::vector<Boid> m_Boids;
+	Light m_DirectLight;
 
 	void Init(int screenWidth, int screenHeight)
 	{
@@ -146,6 +198,11 @@ namespace BoidManager
 
 		// boid render
 		SetArrayBuffer(&m_BoidVao, NULL, m_BoidVertices, sizeof(m_BoidVertices), m_BoidIndices, sizeof(m_BoidIndices));
+		// position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
 
 		m_BoidShader = std::make_unique<Shader>("BoidShader.vert", "BoidShader.frag");
 		m_BoidShader->use();
@@ -153,6 +210,9 @@ namespace BoidManager
 
 		// box render
 		SetArrayBuffer(&m_BoxVao, NULL, m_BoxVertices, sizeof(m_BoxVertices), m_BoxIndices, sizeof(m_BoxIndices));
+		// position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
 
 		m_BoxShader = std::make_unique<Shader>("BoxShader.vert", "BoxShader.frag");
 
@@ -174,8 +234,13 @@ namespace BoidManager
 
 		SetArrayBuffer(&m_LineVao, &m_LineVbo, m_LineVertices.data(), m_LineVertices.size() * sizeof(float),
 			m_LineIndices.data(), m_LineIndices.size() * sizeof(unsigned int));
+		// position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
 
 		m_LineShader = std::make_unique<Shader>("LineShader.vert", "LineShader.frag");
+
+		m_DirectLight = Light(90.0f, 0.0f, glm::vec3(1, 1, 1), 1.0f);
 	}
 
 	void Update()
@@ -221,6 +286,7 @@ namespace BoidManager
 		m_BoidShader->use();
 		m_BoidShader->setMat4("projection", projection);
 		m_BoidShader->setMat4("view", view);
+		m_BoidShader->setVec3("lightDirection", m_DirectLight.Direction);
 
 		for (GLubyte i = 0; i < BOID_AMOUNT; i++)
 		{
@@ -513,9 +579,5 @@ namespace BoidManager
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize, iData, GL_STATIC_DRAW);
-
-		// position attribute
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
 	}
 }
