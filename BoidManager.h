@@ -7,6 +7,19 @@
 
 namespace BoidManager
 {
+	struct Light
+	{
+		float Yaw;
+		float Pitch;
+		glm::vec3 Color;
+		float Intensity;
+		glm::vec3 Direction;
+
+		Light();
+		Light(float yaw, float pitch, glm::vec3 color, float intensity);
+		void UpdateDirection();
+	};
+
 	void Init(int screenWidth, int screenHeight);
 	void Update();
 	void Render(Camera camera);
@@ -27,4 +40,5 @@ namespace BoidManager
 	extern float SeparationFactor;
 	extern float AlignmentFactor;
 	extern float WallAvoidanceFactor;
+	extern Light DirectLight;
 }

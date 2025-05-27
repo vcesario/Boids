@@ -52,38 +52,29 @@ namespace BoidManager
 		}
 	};
 
-	struct Light
+	Light::Light()
 	{
-		float Yaw;
-		float Pitch;
-		glm::vec3 Color;
-		float Intensity;
-		glm::vec3 Direction;
+		Yaw = 0;
+		Pitch = 0;
+		Color = glm::vec3();
+		Intensity = 0;
+		Direction = glm::vec3();
+	}
 
-		Light()
-		{
-			Yaw = 0;
-			Pitch = 0;
-			Color = glm::vec3();
-			Intensity = 0;
-			Direction = glm::vec3();
-		}
+	Light::Light(float yaw, float pitch, glm::vec3 color, float intensity)
+	{
+		Yaw = yaw;
+		Pitch = pitch;
+		Color = color;
+		Intensity = intensity;
 
-		Light(float yaw, float pitch, glm::vec3 color, float intensity)
-		{
-			Yaw = yaw;
-			Pitch = pitch;
-			Color = color;
-			Intensity = intensity;
+		UpdateDirection();
+	}
 
-			UpdateDirection();
-		}
-
-		void UpdateDirection()
-		{
-			Direction = glm::vec3(0.0f, -1.0f, 0.0f);
-		}
-	};
+	void Light::UpdateDirection()
+	{
+		Direction = glm::vec3(0.0f, -1.0f, 0.0f);
+	}
 
 	glm::vec3 WrapPositionToBox(glm::vec3 position);
 	float WrapValueToBox(float value, Axis axis);
@@ -103,6 +94,7 @@ namespace BoidManager
 	float AlignmentFactor = 0.125f;
 	float SeparationFactor = 0.15;
 	float WallAvoidanceFactor = 0.2f;
+	Light DirectLight;
 
 	float m_BoxVertices[] = {
 		-1.0f, -1.0f, -1.0f, // 0 - left bottom back
@@ -179,7 +171,6 @@ namespace BoidManager
 	std::unique_ptr<Shader> m_BoidShader, m_BoxShader, m_LineShader;
 	float m_ScrWidth, m_ScrHeight, m_Aspect;
 	std::vector<Boid> m_Boids;
-	Light m_DirectLight;
 
 	void Init(int screenWidth, int screenHeight)
 	{
@@ -240,7 +231,7 @@ namespace BoidManager
 
 		m_LineShader = std::make_unique<Shader>("LineShader.vert", "LineShader.frag");
 
-		m_DirectLight = Light(90.0f, 0.0f, glm::vec3(1, 1, 1), 1.0f);
+		DirectLight = Light(90.0f, 0.0f, glm::vec3(1, 1, 1), 1.0f);
 	}
 
 	void Update()
@@ -286,7 +277,8 @@ namespace BoidManager
 		m_BoidShader->use();
 		m_BoidShader->setMat4("projection", projection);
 		m_BoidShader->setMat4("view", view);
-		m_BoidShader->setVec3("lightDirection", m_DirectLight.Direction);
+		m_BoidShader->setVec3("lightDirection", DirectLight.Direction);
+		m_BoidShader->setVec3("lightDiffuse", DirectLight.Color);
 
 		for (GLubyte i = 0; i < BOID_AMOUNT; i++)
 		{

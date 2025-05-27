@@ -108,6 +108,20 @@ void Ui::Render(CameraController& camController)
 	}
 	ImGui::End();
 
+	ImGui::Begin("Lights");
+	{
+		//static float angle[2];
+		//ImGui::DragFloat2("Angle", angle, 0.5f, 1.0f, 179.0f, "%.3f");
+		static float color[] = {1.0f, 1.0f, 1.0f};
+		if (ImGui::ColorEdit3("Diffuse", color))
+		{
+			BoidManager::DirectLight.Color.r = color[0];
+			BoidManager::DirectLight.Color.g = color[1];
+			BoidManager::DirectLight.Color.b = color[2];
+		}
+	}
+	ImGui::End();
+
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
